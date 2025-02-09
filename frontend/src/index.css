@@ -1,0 +1,11 @@
+* {
+  margin: 0;
+  padding: 0;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  outline: none;
+  border: none;
+  text-decoration: none;
+
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+}
