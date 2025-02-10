@@ -1,4 +1,3 @@
-import * as React from "react";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
@@ -7,13 +6,13 @@ import MapIcon from "@mui/icons-material/Map";
 import DvrIcon from "@mui/icons-material/Dvr";
 import {
   AppProvider,
-  // type Session,
   type Navigation,
 } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import logo from "../../assets/logo.svg";
 import { ScheduleTable } from "../ClassesSchedule/ClassesScheduleComponent";
+import SidebarFooterAccount from '../AccountComponent/CustomAccountComponent';
 
 const NAVIGATION: Navigation = [
   {
@@ -23,7 +22,7 @@ const NAVIGATION: Navigation = [
   },
   {
     segment: "orarSali",
-    title: "Orar Sali",
+    title: "Orar-Sali",
     icon: <DashboardIcon />,
   },
   {
@@ -76,37 +75,10 @@ function DemoPageContent({ pathname }: { pathname: string }) {
 }
 
 export default function DashboardLayoutComponent() {
-  const [session, setSession] = React.useState<Session | null>({
-    user: {
-      name: "Bharat Kashyap",
-      email: "bharatkashyap@outlook.com",
-      image: "https://avatars.githubusercontent.com/u/19550456",
-    },
-  });
-
-  const authentication = React.useMemo(() => {
-    return {
-      signIn: () => {
-        setSession({
-          user: {
-            name: "Bharat Kashyap",
-            email: "bharatkashyap@outlook.com",
-            image: "https://avatars.githubusercontent.com/u/19550456",
-          },
-        });
-      },
-      signOut: () => {
-        setSession(null);
-      },
-    };
-  }, []);
-
   const router = useDemoRouter("/dashboard");
 
   return (
     <AppProvider
-      session={session}
-      authentication={authentication}
       branding={{
         logo: (
           <img
@@ -129,7 +101,12 @@ export default function DashboardLayoutComponent() {
       router={router}
       theme={demoTheme}
     >
-      <DashboardLayout>
+        <DashboardLayout
+        slots={{
+          toolbarAccount: () => null,
+          sidebarFooter: (props) => <SidebarFooterAccount {...props} />
+        }}
+      >
         <DemoPageContent pathname={router.pathname} />
       </DashboardLayout>
     </AppProvider>
