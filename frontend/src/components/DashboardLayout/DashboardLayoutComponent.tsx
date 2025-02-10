@@ -3,7 +3,6 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import HomeIcon from "@mui/icons-material/Home";
 import MapIcon from "@mui/icons-material/Map";
 import DvrIcon from "@mui/icons-material/Dvr";
 import {
@@ -17,11 +16,6 @@ import logo from "../../assets/logo.svg";
 import { ScheduleTable } from "../ClassesSchedule/ClassesScheduleComponent";
 
 const NAVIGATION: Navigation = [
-  {
-    segment: "Home",
-    title: "Home",
-    icon: <HomeIcon />,
-  },
   {
     segment: "dashboard",
     title: "Orar",
@@ -120,10 +114,12 @@ export default function DashboardLayoutComponent() {
             alt="UNI Logo"
             style={{
               width: "205px",
-              height: "73px",
+              height: "65px",
               maxHeight: "none",
-              marginTop: "-12px",
-              marginLeft: "-5px",
+              objectFit: "contain",
+              margin: "0 auto",
+              marginTop: "-13px",
+              marginLeft: "-19px",
             }}
           />
         ),

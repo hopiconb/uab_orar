@@ -50,7 +50,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
       >
         <TextField
           fullWidth
-          label="Numele Evenimentului"
+          label="Numele Orei"
           value={eventName}
           onChange={(e) => setEventName(e.target.value)}
           variant="outlined"
@@ -96,15 +96,6 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
             variant="outlined"
           />
         </Stack>
-
-        <TextField
-          fullWidth
-          label="Descriere Eveniment"
-          multiline
-          rows={3}
-          margin="normal"
-          variant="outlined"
-        />
       </DialogContent>
 
       <DialogActions sx={{ p: 3 }}>
