@@ -1,11 +1,21 @@
 import { useForm, type FieldValues } from "react-hook-form";
-import { TextField, CircularProgress, Typography } from "@mui/material";
+import {
+  TextField,
+  CircularProgress,
+  Typography,
+  Dialog,
+  FormControl,
+  styled,
+} from "@mui/material";
 import { FormContainer, SubmitButton, LogoContainer, Logo } from "./FormStyles";
 import submitIcon from "../../assets/icon.svg";
 import logo from "../../assets/logo.svg";
 import { FormInputs } from "./interface";
+import { loginUser } from "../../lib/authentication";
+import { useNavigate } from "react-router-dom";
 
 export default function Form() {
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -14,17 +24,18 @@ export default function Form() {
   } = useForm<FormInputs>();
 
   const onSubmit = async (data: FieldValues) => {
-    // ToDo: submit to server
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    reset();
+    loginUser(data).then((result) => {
+      if (result) {
+        navigate("/home"); //TODO zustand
+      }
+    });
   };
-
   return (
     <>
       <LogoContainer>
         <Logo src={logo} alt="University Logo" />
       </LogoContainer>
-      <FormContainer onSubmit={handleSubmit(onSubmit)}>
+      <FormContainer component={"form"} onSubmit={handleSubmit(onSubmit)}>
         <Typography
           variant="h5"
           color="textPrimary"
