@@ -3,11 +3,10 @@ import { Grid, Typography, Box, Stack, Button, useTheme } from "@mui/material";
 import EventModal from "./EventModalComponent";
 
 export const ScheduleTable: React.FC = () => {
-  // Intervalele orare
   const timeSlots = ["08-10", "10-12", "12-14", "14-16", "16-18", "18-20"];
 
   const [open, setOpen] = useState<boolean>(false);
-  const theme = useTheme(); // Get current theme
+  const theme = useTheme(); 
 
   const handleClickOpen = () => {
     setOpen(true);
@@ -23,12 +22,11 @@ export const ScheduleTable: React.FC = () => {
       justifyContent="flex-start"
       alignItems="flex-start"
       sx={{
-        height: "100vh", // Înălțimea paginii
-        padding: 4, // Spațiere față de marginea paginii
+        height: "100vh",
+        padding: 4, 
       }}
       spacing={10}
     >
-      {/* Buton pentru deschiderea modalului */}
       <Button
         variant="contained"
         color="primary"
@@ -41,14 +39,13 @@ export const ScheduleTable: React.FC = () => {
         Adaugă Eveniment
       </Button>
 
-      {/* Modalul pentru adăugarea unui eveniment  */}
       <EventModal open={open} handleClose={handleClose} />
 
       <Typography
         variant="h4"
         sx={{
           fontWeight: "bold",
-          marginBottom: 2, // Spațiu între titlu și tabel
+          marginBottom: 2,
         }}
       >
         Orarul meu
@@ -60,19 +57,18 @@ export const ScheduleTable: React.FC = () => {
           border: `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
           overflow: "hidden",
-          backgroundColor: theme.palette.background.paper, // Use theme background
+          backgroundColor: theme.palette.background.paper, 
           width: "90%",
           maxWidth: "1400px",
           height: "50vh",
         }}
       >
-        {/* Header */}
         <Grid
           container
           item
           xs={12}
           sx={{
-            backgroundColor: theme.palette.background.default, // Dynamic background for header
+            backgroundColor: theme.palette.background.default, 
             borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
@@ -95,7 +91,6 @@ export const ScheduleTable: React.FC = () => {
           ))}
         </Grid>
 
-        {/* Rows */}
         {timeSlots.map((timeSlot, rowIndex) => (
           <Grid
             container
@@ -107,26 +102,23 @@ export const ScheduleTable: React.FC = () => {
                 rowIndex < timeSlots.length - 1 ? `1px solid ${theme.palette.divider}` : "none",
             }}
           >
-            {/* Interval orar */}
             <Grid
               item
               xs={2}
               sx={{
                 padding: 1,
                 textAlign: "center",
-                backgroundColor: theme.palette.background.paper, // Background for the time column
+                backgroundColor: theme.palette.background.paper,
               }}
             >
               <Typography variant="body2">{timeSlot}</Typography>
             </Grid>
-            {/* Cells */}
             {[...Array(5)].map((_, colIndex) => (
               <Grid item xs={2} key={colIndex} sx={{ padding: 1 }}>
-                {/* Exemplu de card pentru un curs */}
                 {rowIndex === 1 && colIndex === 0 && (
                   <Box
                     sx={{
-                      backgroundColor: theme.palette.primary.light, // Light color for events
+                      backgroundColor: theme.palette.primary.light, 
                       borderRadius: 1,
                       padding: 1,
                       borderLeft: `4px solid ${theme.palette.primary.main}`,

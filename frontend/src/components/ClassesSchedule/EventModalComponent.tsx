@@ -13,6 +13,8 @@ import {
   Alert,
   CircularProgress,
 } from "@mui/material";
+import { useAppDispatch, useAppSelector } from "../../hooks/redux";
+import { fetchBookedSlots, createBookedSlot, clearError, setCustomError } from "../../store/slices/scheduleSlice";
 
 interface EventModalProps {
   open: boolean;
@@ -24,50 +26,25 @@ interface TimeSlot {
   end: string;
 }
 
-// TO DO: Actualizați această interfață conform structurii de date de la server
-interface BookedSlot {
-  id?: string;           // Adăugați pentru backend
-  day: number;
-  timeSlot: number;
-  professorName: string;
-  createdAt?: string;    // Adăugați pentru backend
-  updatedAt?: string;    // Adăugați pentru backend
-}
 
 const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
+  const dispatch = useAppDispatch();
+  const { bookedSlots, isLoading, error } = useAppSelector((state) => state.schedule);
+  
   const [eventName, setEventName] = useState<string>("");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  // TO DO: Adăugați state pentru loading și datele de la server
-  const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [bookedSlots, setBookedSlots] = useState<BookedSlot[]>([]);
 
   const theme = useTheme();
 
-  // TO DO: Adăugați effect pentru a încărca datele de la server
   useEffect(() => {
-    const fetchBookedSlots = async () => {
-      setIsLoading(true);
-      try {
-        const response = await fetch('/api/booked-slots');
-        if (!response.ok) {
-          throw new Error('Failed to fetch booked slots');
-        }
-        const data = await response.json();
-        setBookedSlots(data);
-      } catch (error) {
-        console.error('Error fetching booked slots:', error);
-        setError('A apărut o eroare la încărcarea datelor');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     if (open) {
-      fetchBookedSlots();
+      dispatch(fetchBookedSlots());
     }
-  }, [open]);
+    return () => {
+      dispatch(clearError());
+    };
+  }, [open, dispatch]);
 
   const weekDays = [
     "Luni",
@@ -88,8 +65,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
     { start: "18:00", end: "20:00" },
   ];
 
-  // TO DO: Această funcție ar putea necesita adaptare în funcție de structura datelor
-  const isTimeSlotBooked = (dayIndex: number, timeSlotIndex: number): BookedSlot | undefined => {
+  const isTimeSlotBooked = (dayIndex: number, timeSlotIndex: number) => {
     return bookedSlots.find(
       slot => slot.day === dayIndex && slot.timeSlot === timeSlotIndex
     );
@@ -97,65 +73,62 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
 
   const handleDaySelect = (index: number) => {
     setSelectedDay(index);
-    setError(null);
+    dispatch(clearError());
     if (selectedTimeSlot !== null) {
       const bookedSlot = isTimeSlotBooked(index, selectedTimeSlot);
       if (bookedSlot) {
-        setError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`);
+        dispatch(setCustomError("Acest interval orar este deja rezervat pentru ziua selectată"));
       }
     }
   };
-
+  
   const handleTimeSlotSelect = (index: number) => {
-    setError(null);
+    dispatch(clearError());
     if (selectedDay !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, index);
       if (bookedSlot) {
-        setError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`);
+        dispatch(setCustomError("Acest interval orar este deja rezervat"));
         return;
       }
     }
     setSelectedTimeSlot(index);
   };
-
-  // TO DO: Actualizați această funcție pentru a salva datele pe server
+  
   const handleSave = async () => {
+    if (!eventName.trim()) {
+      dispatch(setCustomError("Vă rugăm să introduceți numele orei"));
+      return;
+    }
+  
+    if (selectedDay === null) {
+      dispatch(setCustomError("Vă rugăm să selectați o zi"));
+      return;
+    }
+  
+    if (selectedTimeSlot === null) {
+      dispatch(setCustomError("Vă rugăm să selectați un interval orar"));
+      return;
+    }
+  
     if (selectedDay !== null && selectedTimeSlot !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, selectedTimeSlot);
       if (bookedSlot) {
-        setError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`);
+        dispatch(setCustomError("Acest interval orar este deja rezervat"));
         return;
       }
-
-      setIsLoading(true);
+  
       try {
-        const response = await fetch('/api/events', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            eventName,
-            day: selectedDay,
-            timeSlot: selectedTimeSlot,
-            timeSlotDetails: timeSlots[selectedTimeSlot],
-            dayName: weekDays[selectedDay],
-          })
-        });
-
-        if (!response.ok) {
-          throw new Error('Failed to save event');
-        }
-
-        // TO DO: Adăugați logică pentru actualizarea state-ului global dacă e necesar
-        // await queryClient.invalidateQueries('bookedSlots');
+        await dispatch(createBookedSlot({
+          professorName: eventName,
+          day: selectedDay,
+          timeSlot: selectedTimeSlot,
+        })).unwrap();
         
         handleClose();
-      } catch (error) {
-        console.error('Error saving event:', error);
-        setError('A apărut o eroare la salvarea evenimentului');
-      } finally {
-        setIsLoading(false);
+      } catch (err) {
+        console.error('Failed to save:', err);
+        // Nu mai trebuie să facem dispatch la setCustomError aici
+        // deoarece createBookedSlot.rejected va seta deja eroarea
       }
     }
   };
@@ -173,7 +146,6 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           gap: 2,
         }}
       >
-        {/* TO DO: Adăugați indicator de loading global */}
         {isLoading && (
           <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
             <CircularProgress />
