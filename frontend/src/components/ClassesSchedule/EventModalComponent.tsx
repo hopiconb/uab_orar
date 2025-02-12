@@ -77,7 +77,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
     if (selectedTimeSlot !== null) {
       const bookedSlot = isTimeSlotBooked(index, selectedTimeSlot);
       if (bookedSlot) {
-        dispatch(setCustomError("Acest interval orar este deja rezervat pentru ziua selectată"));
+        dispatch(setCustomError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`));
       }
     }
   };
@@ -87,7 +87,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
     if (selectedDay !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, index);
       if (bookedSlot) {
-        dispatch(setCustomError("Acest interval orar este deja rezervat"));
+        dispatch(setCustomError( `Acest interval este deja rezervat de ${bookedSlot.professorName}`));
         return;
       }
     }

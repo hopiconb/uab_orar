@@ -1,19 +1,62 @@
-import React, { useState } from "react";
+// src/components/ScheduleTable.tsx
+import React, { useState, useEffect } from "react";
 import { Grid, Typography, Box, Stack, Button, useTheme } from "@mui/material";
 import EventModal from "./EventModalComponent";
+import { ClassesScheduleEvent } from "../../types/classesSchedule";
+import { mockScheduleEvents } from "../../mocks/schedule.mocks";
+import { EventEditPopover } from "./EventEditPopoverComponent";
 
 export const ScheduleTable: React.FC = () => {
   const timeSlots = ["08-10", "10-12", "12-14", "14-16", "16-18", "18-20"];
-
   const [open, setOpen] = useState<boolean>(false);
-  const theme = useTheme(); 
+  const [scheduleEvents, setScheduleEvents] = useState<ClassesScheduleEvent[]>([]);
+  const [selectedEvent, setSelectedEvent] = useState<ClassesScheduleEvent | null>(null);
+  const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const theme = useTheme();
 
-  const handleClickOpen = () => {
-    setOpen(true);
+  useEffect(() => {
+    const fetchSchedule = async () => {
+      try {
+        // Simulăm un delay de rețea
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        setScheduleEvents(mockScheduleEvents);
+      } catch (error) {
+        console.error('Error fetching schedule:', error);
+      }
+    };
+
+    fetchSchedule();
+  }, []);
+
+  const getEventForSlot = (timeSlot: string, dayIndex: number) => {
+    return scheduleEvents.find(
+      event => event.timeSlot === timeSlot && event.dayOfWeek === dayIndex
+    );
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  // Funcții pentru gestionarea popover-ului
+  const handleEventClick = (event: ClassesScheduleEvent, element: HTMLElement) => {
+    setSelectedEvent(event);
+    setAnchorEl(element);
+  };
+
+  const handleClosePopover = () => {
+    setSelectedEvent(null);
+    setAnchorEl(null);
+  };
+
+  const handleSaveEvent = (updatedEvent: ClassesScheduleEvent) => {
+    setScheduleEvents(prevEvents => 
+      prevEvents.map(event => 
+        event.id === updatedEvent.id ? updatedEvent : event
+      )
+    );
+  };
+
+  const handleDeleteEvent = (eventId: string) => {
+    setScheduleEvents(prevEvents => 
+      prevEvents.filter(event => event.id !== eventId)
+    );
   };
 
   return (
@@ -23,31 +66,26 @@ export const ScheduleTable: React.FC = () => {
       alignItems="flex-start"
       sx={{
         height: "100vh",
-        padding: 4, 
+        padding: 4,
       }}
       spacing={10}
     >
       <Button
         variant="contained"
         color="primary"
-        onClick={handleClickOpen}
-        sx={{ mb: 3,
-          backgroundColor: theme.palette.mode === "dark" ? "rgb(25,118,210)" : "primary.main", 
+        onClick={() => setOpen(true)}
+        sx={{
+          mb: 3,
+          backgroundColor: theme.palette.mode === "dark" ? "rgb(25,118,210)" : "primary.main",
           color: theme.palette.mode === "dark" ? "white" : "primary.contrastText",
-         }}
+        }}
       >
         Adaugă Eveniment
       </Button>
 
-      <EventModal open={open} handleClose={handleClose} />
+      <EventModal open={open} handleClose={() => setOpen(false)} />
 
-      <Typography
-        variant="h4"
-        sx={{
-          fontWeight: "bold",
-          marginBottom: 2,
-        }}
-      >
+      <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
         Orarul meu
       </Typography>
 
@@ -57,7 +95,7 @@ export const ScheduleTable: React.FC = () => {
           border: `1px solid ${theme.palette.divider}`,
           borderRadius: 2,
           overflow: "hidden",
-          backgroundColor: theme.palette.background.paper, 
+          backgroundColor: theme.palette.background.paper,
           width: "90%",
           maxWidth: "1400px",
           height: "50vh",
@@ -68,7 +106,7 @@ export const ScheduleTable: React.FC = () => {
           item
           xs={12}
           sx={{
-            backgroundColor: theme.palette.background.default, 
+            backgroundColor: theme.palette.background.default,
             borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
@@ -78,12 +116,7 @@ export const ScheduleTable: React.FC = () => {
             </Typography>
           </Grid>
           {["Luni", "Marți", "Miercuri", "Joi", "Vineri"].map((day) => (
-            <Grid
-              item
-              xs={2}
-              key={day}
-              sx={{ padding: 1, textAlign: "center" }}
-            >
+            <Grid item xs={2} key={day} sx={{ padding: 1, textAlign: "center" }}>
               <Typography variant="subtitle1" fontWeight="bold">
                 {day}
               </Typography>
@@ -96,10 +129,12 @@ export const ScheduleTable: React.FC = () => {
             container
             item
             xs={12}
-            key={rowIndex}
+            key={timeSlot}
             sx={{
               borderBottom:
-                rowIndex < timeSlots.length - 1 ? `1px solid ${theme.palette.divider}` : "none",
+                rowIndex < timeSlots.length - 1
+                  ? `1px solid ${theme.palette.divider}`
+                  : "none",
             }}
           >
             <Grid
@@ -113,28 +148,54 @@ export const ScheduleTable: React.FC = () => {
             >
               <Typography variant="body2">{timeSlot}</Typography>
             </Grid>
-            {[...Array(5)].map((_, colIndex) => (
-              <Grid item xs={2} key={colIndex} sx={{ padding: 1 }}>
-                {rowIndex === 1 && colIndex === 0 && (
-                  <Box
-                    sx={{
-                      backgroundColor: theme.palette.primary.light, 
-                      borderRadius: 1,
-                      padding: 1,
-                      borderLeft: `4px solid ${theme.palette.primary.main}`,
-                    }}
-                  >
-                    <Typography variant="body2" fontWeight="bold">
-                      Arhitectura sistemelor de calcul
-                    </Typography>
-                    <Typography variant="caption">Corp C - Sala A2</Typography>
-                  </Box>
-                )}
-              </Grid>
-            ))}
+            {[...Array(5)].map((_, dayIndex) => {
+              const event = getEventForSlot(timeSlot, dayIndex);
+              return (
+                <Grid item xs={2} key={dayIndex} sx={{ padding: 1 }}>
+                  {event && (
+                    <Box
+                      onClick={(e) => handleEventClick(event, e.currentTarget)}
+                      sx={{
+                        backgroundColor: theme.palette.primary.light,
+                        borderRadius: 1,
+                        padding: 1,
+                        borderLeft: `4px solid ${theme.palette.primary.main}`,
+                        cursor: 'pointer',
+                        '&:hover': {
+                          opacity: 0.9,
+                          boxShadow: 1,
+                        },
+                      }}
+                    >
+                      <Typography variant="body2" fontWeight="bold">
+                        {event.title}
+                      </Typography>
+                      <Typography variant="caption" display="block">
+                        {event.location}
+                      </Typography>
+                      {event.professor && (
+                        <Typography variant="caption" display="block">
+                          {event.professor}
+                        </Typography>
+                      )}
+                    </Box>
+                  )}
+                </Grid>
+              );
+            })}
           </Grid>
         ))}
       </Grid>
+
+      {selectedEvent && (
+        <EventEditPopover
+          event={selectedEvent}
+          anchorEl={anchorEl}
+          onClose={handleClosePopover}
+          onSave={handleSaveEvent}
+          onDelete={handleDeleteEvent}
+        />
+      )}
     </Stack>
   );
 };

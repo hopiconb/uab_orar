@@ -1,5 +1,6 @@
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
-import { ScheduleState, BookedSlot } from '../../types/schdeule';
+// scheduleSlice.ts
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { ScheduleState, BookedSlot } from '../../types/addSchdeule';
 
 const initialState: ScheduleState = {
   bookedSlots: [],
@@ -35,13 +36,6 @@ export const createBookedSlot = createAsyncThunk(
   }
 );
 
-export const setCustomError = createAsyncThunk(
-  'schedule/setCustomError',
-  async (message: string, { rejectWithValue }) => {
-    return rejectWithValue(message);
-  }
-);
-
 const scheduleSlice = createSlice({
   name: 'schedule',
   initialState,
@@ -49,10 +43,12 @@ const scheduleSlice = createSlice({
     clearError: (state) => {
       state.error = null;
     },
+    setCustomError: (state, action: PayloadAction<string>) => {
+      state.error = action.payload;
+    },
   },
   extraReducers: (builder) => {
     builder
-      // Fetch booked slots
       .addCase(fetchBookedSlots.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -65,7 +61,6 @@ const scheduleSlice = createSlice({
         state.isLoading = false;
         state.error = action.error.message || 'A apărut o eroare';
       })
-      // Create booked slot
       .addCase(createBookedSlot.pending, (state) => {
         state.isLoading = true;
         state.error = null;
@@ -77,13 +72,9 @@ const scheduleSlice = createSlice({
       .addCase(createBookedSlot.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.error.message || 'A apărut o eroare la salvare';
-      })
-			// Set custom error
-			.addCase(setCustomError.rejected, (state, action) => {
-				state.error = action.payload as string || 'A apărut o eroare';
-			});
+      });
   },
 });
 
-export const { clearError } = scheduleSlice.actions;
+export const { clearError, setCustomError } = scheduleSlice.actions;
 export default scheduleSlice.reducer;
