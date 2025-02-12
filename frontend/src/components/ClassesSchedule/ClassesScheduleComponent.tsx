@@ -1,4 +1,3 @@
-// src/components/ScheduleTable.tsx
 import React, { useState, useEffect } from "react";
 import { Grid, Typography, Box, Stack, Button, useTheme } from "@mui/material";
 import EventModal from "./EventModalComponent";
@@ -17,7 +16,6 @@ export const ScheduleTable: React.FC = () => {
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        // Simulăm un delay de rețea
         await new Promise(resolve => setTimeout(resolve, 1000));
         setScheduleEvents(mockScheduleEvents);
       } catch (error) {
@@ -34,7 +32,6 @@ export const ScheduleTable: React.FC = () => {
     );
   };
 
-  // Funcții pentru gestionarea popover-ului
   const handleEventClick = (event: ClassesScheduleEvent, element: HTMLElement) => {
     setSelectedEvent(event);
     setAnchorEl(element);
@@ -59,35 +56,31 @@ export const ScheduleTable: React.FC = () => {
     );
   };
 
+  // Funcție pentru a calcula culoarea de fundal mai deschisă
+  const getLightColor = (color: string) => {
+    return color + '33'; 
+  };
+
   return (
-    <Stack
-      direction="column"
-      justifyContent="flex-start"
-      alignItems="flex-start"
-      sx={{
-        height: "100vh",
-        padding: 4,
-      }}
-      spacing={10}
-    >
-      <Button
-        variant="contained"
-        color="primary"
-        onClick={() => setOpen(true)}
-        sx={{
-          mb: 3,
-          backgroundColor: theme.palette.mode === "dark" ? "rgb(25,118,210)" : "primary.main",
-          color: theme.palette.mode === "dark" ? "white" : "primary.contrastText",
-        }}
-      >
-        Adaugă Eveniment
-      </Button>
-
-      <EventModal open={open} handleClose={() => setOpen(false)} />
-
-      <Typography variant="h4" sx={{ fontWeight: "bold", marginBottom: 2 }}>
-        Orarul meu
-      </Typography>
+    <Box sx={{ p: 4, width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+        <Typography variant="h4" sx={{ fontWeight: "bold" }}>
+          Orarul meu
+        </Typography>
+        <Button
+          variant="contained"
+          onClick={() => setOpen(true)}
+          sx={{
+            backgroundColor: theme.palette.primary.main,
+            color: 'white',
+            '&:hover': {
+              backgroundColor: theme.palette.primary.dark,
+            }
+          }}
+        >
+          Adaugă Eveniment
+        </Button>
+      </Stack>
 
       <Grid
         container
@@ -96,27 +89,26 @@ export const ScheduleTable: React.FC = () => {
           borderRadius: 2,
           overflow: "hidden",
           backgroundColor: theme.palette.background.paper,
-          width: "90%",
-          maxWidth: "1400px",
-          height: "50vh",
+          width: "100%",
         }}
       >
+        
         <Grid
           container
           item
           xs={12}
           sx={{
-            backgroundColor: theme.palette.background.default,
+            backgroundColor: theme.palette.grey[100],
             borderBottom: `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Grid item xs={2} sx={{ padding: 1, textAlign: "center" }}>
+          <Grid item xs={2} sx={{ p: 2, textAlign: "center" }}>
             <Typography variant="subtitle1" fontWeight="bold">
               Ora
             </Typography>
           </Grid>
           {["Luni", "Marți", "Miercuri", "Joi", "Vineri"].map((day) => (
-            <Grid item xs={2} key={day} sx={{ padding: 1, textAlign: "center" }}>
+            <Grid item xs={2} key={day} sx={{ p: 2, textAlign: "center" }}>
               <Typography variant="subtitle1" fontWeight="bold">
                 {day}
               </Typography>
@@ -124,6 +116,7 @@ export const ScheduleTable: React.FC = () => {
           ))}
         </Grid>
 
+        
         {timeSlots.map((timeSlot, rowIndex) => (
           <Grid
             container
@@ -131,53 +124,76 @@ export const ScheduleTable: React.FC = () => {
             xs={12}
             key={timeSlot}
             sx={{
-              borderBottom:
-                rowIndex < timeSlots.length - 1
-                  ? `1px solid ${theme.palette.divider}`
-                  : "none",
+              borderBottom: rowIndex < timeSlots.length - 1 ? `1px solid ${theme.palette.divider}` : "none",
+              '&:hover': {
+                backgroundColor: theme.palette.grey[50],
+              }
             }}
           >
             <Grid
               item
               xs={2}
               sx={{
-                padding: 1,
+                p: 2,
                 textAlign: "center",
-                backgroundColor: theme.palette.background.paper,
+                borderRight: `1px solid ${theme.palette.divider}`,
               }}
             >
-              <Typography variant="body2">{timeSlot}</Typography>
+              <Typography variant="body2" color="textSecondary">
+                {timeSlot.replace('-', ':00 - ')}:00
+              </Typography>
             </Grid>
             {[...Array(5)].map((_, dayIndex) => {
               const event = getEventForSlot(timeSlot, dayIndex);
+              
               return (
-                <Grid item xs={2} key={dayIndex} sx={{ padding: 1 }}>
+                <Grid item xs={2} key={dayIndex} sx={{ p: 1 }}>
                   {event && (
                     <Box
                       onClick={(e) => handleEventClick(event, e.currentTarget)}
                       sx={{
-                        backgroundColor: theme.palette.primary.light,
+                        backgroundColor: event.color ? getLightColor(event.color) : theme.palette.primary.light,
                         borderRadius: 1,
-                        padding: 1,
-                        borderLeft: `4px solid ${theme.palette.primary.main}`,
+                        p: 1.5,
+                        borderLeft: `4px solid ${event.color || theme.palette.primary.main}`,
                         cursor: 'pointer',
+                        transition: 'all 0.2s ease-in-out',
                         '&:hover': {
-                          opacity: 0.9,
-                          boxShadow: 1,
+                          transform: 'translateY(-2px)',
+                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
                         },
                       }}
                     >
-                      <Typography variant="body2" fontWeight="bold">
+                      <Typography 
+                        variant="body2" 
+                        fontWeight="bold" 
+                        sx={{ color: event.color || theme.palette.primary.main }}
+                      >
                         {event.title}
                       </Typography>
-                      <Typography variant="caption" display="block">
+                      <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
                         {event.location}
                       </Typography>
                       {event.professor && (
-                        <Typography variant="caption" display="block">
+                        <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
                           {event.professor}
                         </Typography>
                       )}
+                      <Typography 
+                        variant="caption" 
+                        sx={{ 
+                          display: 'inline-block',
+                          mt: 1,
+                          backgroundColor: event.color || theme.palette.primary.main,
+                          color: 'white',
+                          px: 1,
+                          py: 0.25,
+                          borderRadius: 1,
+                          textTransform: 'capitalize'
+                        }}
+                      >
+                        {event.type || 'curs'}
+                      </Typography>
                     </Box>
                   )}
                 </Grid>
@@ -186,6 +202,8 @@ export const ScheduleTable: React.FC = () => {
           </Grid>
         ))}
       </Grid>
+
+      <EventModal open={open} handleClose={() => setOpen(false)} />
 
       {selectedEvent && (
         <EventEditPopover
@@ -196,6 +214,8 @@ export const ScheduleTable: React.FC = () => {
           onDelete={handleDeleteEvent}
         />
       )}
-    </Stack>
+    </Box>
   );
 };
+
+export default ScheduleTable;
