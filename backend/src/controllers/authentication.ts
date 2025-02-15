@@ -27,6 +27,11 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(401).send("Invalid credentials");
     }
 
+    const userToSend = {
+      name: user.username,
+      email: user.email,
+    };
+
     const salt = random();
     user.authentication.sessionToken = authentication(
       salt,
@@ -38,7 +43,7 @@ export const login = async (req: express.Request, res: express.Response) => {
       domain: "localhost",
       path: "/",
     });
-    return res.json(flag);
+    return res.json({ flag, userToSend });
   } catch (error) {
     console.log(error);
     return res.status(500).send("Internal server error");

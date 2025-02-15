@@ -2,7 +2,9 @@
 import { styled } from "@mui/system";
 import { Box, Button, FormControl } from "@mui/material";
 
-export const FormContainer = styled(FormControl)({
+export const FormContainer = styled(FormControl)<{
+  component?: React.ElementType;
+}>({
   width: "100%",
   maxWidth: 400,
   margin: "0 auto",
@@ -10,24 +12,10 @@ export const FormContainer = styled(FormControl)({
   padding: "2rem",
   borderRadius: "8px",
   backgroundColor: "#f4f6f8",
-  // backgroundColor: "grey",
   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
   textAlign: "center",
   display: "flex",
 });
-
-// const FormContainer = styled((props) => <FormControl {...props} />)({
-//   width: "100%",
-//   maxWidth: 400,
-//   margin: "0 auto",
-//   marginTop: "10vh",
-//   padding: "2rem",
-//   borderRadius: "8px",
-//   backgroundColor: "#f4f6f8",
-//   // backgroundColor: "grey",
-//   boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-//   textAlign: "center",
-//  });
 
 export const SubmitButton = styled(Button)({
   backgroundColor: "#4B3F92",

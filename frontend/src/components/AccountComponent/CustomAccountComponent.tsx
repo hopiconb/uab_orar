@@ -1,10 +1,16 @@
-import React from 'react';
-import { Box, Avatar, Typography, Popover, IconButton, Skeleton } from '@mui/material';
-import LogoutIcon from '@mui/icons-material/Logout';
-import { User } from '../../types/user';
-import { getRoleLabel } from '../../constants/userRoles';
-import { fetchCurrentUser } from '../../api/user';
-
+import React from "react";
+import {
+  Box,
+  Avatar,
+  Typography,
+  Popover,
+  IconButton,
+  Skeleton,
+} from "@mui/material";
+import LogoutIcon from "@mui/icons-material/Logout";
+import { User } from "../../types/user";
+import { getRoleLabel } from "../../constants/userRoles";
+import { useMyContext } from "../../AppContext";
 
 interface AccountPreviewProps {
   mini?: boolean;
@@ -32,22 +38,27 @@ const AccountPopoverContent = ({ onClose, user }: AccountPopoverProps) => (
       <Typography variant="caption" color="text.secondary">
         {user?.email}
       </Typography>
-      <Typography variant="caption" display="block" color="text.secondary" sx={{ mt: 0.5 }}>
-        {user && getRoleLabel(user.role)}
+      <Typography
+        variant="caption"
+        display="block"
+        color="text.secondary"
+        sx={{ mt: 0.5 }}
+      >
+        {user && getRoleLabel(user.role!)}
       </Typography>
     </Box>
     <Box
       sx={{
         pt: 1,
-        borderTop: '1px solid',
-        borderColor: 'divider',
+        borderTop: "1px solid",
+        borderColor: "divider",
       }}
     >
       <Typography
         variant="body2"
         sx={{
-          cursor: 'pointer',
-          '&:hover': { color: 'primary.main' },
+          cursor: "pointer",
+          "&:hover": { color: "primary.main" },
         }}
         onClick={onClose}
       >
@@ -57,11 +68,23 @@ const AccountPopoverContent = ({ onClose, user }: AccountPopoverProps) => (
   </Box>
 );
 
-const AccountPreview = ({ mini, onClick, onSignOut, user, loading }: AccountPreviewProps) => {
+const AccountPreview = ({
+  mini,
+  onClick,
+  onSignOut,
+  user,
+  loading,
+}: AccountPreviewProps) => {
   if (loading) {
     return (
-      <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: mini ? 1 : 2 }}>
-        <Skeleton variant="circular" width={mini ? 36 : 45} height={mini ? 36 : 45} />
+      <Box
+        sx={{ p: 2, display: "flex", alignItems: "center", gap: mini ? 1 : 2 }}
+      >
+        <Skeleton
+          variant="circular"
+          width={mini ? 36 : 45}
+          height={mini ? 36 : 45}
+        />
         {!mini && (
           <Box sx={{ flexGrow: 1 }}>
             <Skeleton variant="text" width={120} />
@@ -76,13 +99,13 @@ const AccountPreview = ({ mini, onClick, onSignOut, user, loading }: AccountPrev
     <Box
       onClick={mini ? onClick : undefined}
       sx={{
-        display: 'flex',
-        alignItems: 'center',
+        display: "flex",
+        alignItems: "center",
         gap: mini ? 1 : 2,
         p: 2,
-        cursor: mini ? 'pointer' : 'default',
-        '&:hover': {
-          bgcolor: mini ? 'action.hover' : 'transparent',
+        cursor: mini ? "pointer" : "default",
+        "&:hover": {
+          bgcolor: mini ? "action.hover" : "transparent",
         },
       }}
     >
@@ -90,19 +113,19 @@ const AccountPreview = ({ mini, onClick, onSignOut, user, loading }: AccountPrev
         sx={{
           width: mini ? 36 : 45,
           height: mini ? 36 : 45,
-          backgroundColor: 'grey.300',
+          backgroundColor: "grey.300",
         }}
       >
         {user?.avatar || user?.name?.charAt(0)}
       </Avatar>
       {!mini && (
         <Box sx={{ flexGrow: 1, minWidth: 0 }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-            <Typography 
-              variant="body2" 
-              noWrap 
-              sx={{ 
-                fontWeight: 600
+          <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+            <Typography
+              variant="body2"
+              noWrap
+              sx={{
+                fontWeight: 600,
               }}
             >
               {user?.name}
@@ -110,23 +133,23 @@ const AccountPreview = ({ mini, onClick, onSignOut, user, loading }: AccountPrev
             <Typography
               variant="caption"
               sx={{
-                color: 'text.secondary',
-                bgcolor: 'action.hover',
+                color: "text.secondary",
+                bgcolor: "action.hover",
                 px: 1,
                 py: 0.5,
                 borderRadius: 1,
-                fontWeight: 500
+                fontWeight: 500,
               }}
             >
-              {user && getRoleLabel(user.role)}
+              {user && getRoleLabel(user.role!)}
             </Typography>
           </Box>
-          <Typography 
-            variant="caption" 
-            color="text.secondary" 
+          <Typography
+            variant="caption"
+            color="text.secondary"
             noWrap
-            sx={{ 
-              fontWeight: 500
+            sx={{
+              fontWeight: 500,
             }}
           >
             {user?.email}
@@ -138,10 +161,10 @@ const AccountPreview = ({ mini, onClick, onSignOut, user, loading }: AccountPrev
           size="small"
           onClick={onSignOut}
           sx={{
-            color: 'text.secondary',
-            '&:hover': {
-              color: 'primary.main',
-              bgcolor: 'transparent',
+            color: "text.secondary",
+            "&:hover": {
+              color: "primary.main",
+              bgcolor: "transparent",
             },
           }}
         >
@@ -161,10 +184,11 @@ const SidebarFooterAccount = ({ mini = false }: SidebarFooterProps) => {
   React.useEffect(() => {
     const loadUser = async () => {
       try {
-        const userData = await fetchCurrentUser();
-        setUser(userData);
+        const u = localStorage.getItem("User");
+        const jsonU = JSON.parse(u!);
+        setUser(jsonU);
       } catch (error) {
-        console.error('Failed to load user:', error);
+        console.error("Failed to load user:", error);
       } finally {
         setLoading(false);
       }
@@ -185,14 +209,14 @@ const SidebarFooterAccount = ({ mini = false }: SidebarFooterProps) => {
 
   const handleSignOut = () => {
     // Add your sign out logic here
-    console.log('Sign out clicked');
+    console.log("Sign out clicked");
   };
 
   const PreviewComponent = React.useMemo(
     () => (props: AccountPreviewProps) => (
-      <AccountPreview 
-        {...props} 
-        mini={mini} 
+      <AccountPreview
+        {...props}
+        mini={mini}
         onSignOut={handleSignOut}
         user={user}
         loading={loading}
@@ -202,7 +226,7 @@ const SidebarFooterAccount = ({ mini = false }: SidebarFooterProps) => {
   );
 
   return (
-    <Box sx={{ borderTop: '1px solid', borderColor: 'divider' }}>
+    <Box sx={{ borderTop: "1px solid", borderColor: "divider" }}>
       <PreviewComponent onClick={handleClick} user={user} loading={loading} />
       {mini && (
         <Popover
@@ -210,35 +234,35 @@ const SidebarFooterAccount = ({ mini = false }: SidebarFooterProps) => {
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{
-            vertical: 'bottom',
-            horizontal: 'right',
+            vertical: "bottom",
+            horizontal: "right",
           }}
           transformOrigin={{
-            vertical: 'bottom',
-            horizontal: 'left',
+            vertical: "bottom",
+            horizontal: "left",
           }}
           slotProps={{
             paper: {
               elevation: 0,
               sx: {
-                overflow: 'visible',
+                overflow: "visible",
                 filter: (theme) =>
                   `drop-shadow(0px 2px 8px ${
-                    theme.palette.mode === 'dark'
-                      ? 'rgba(255,255,255,0.10)'
-                      : 'rgba(0,0,0,0.32)'
+                    theme.palette.mode === "dark"
+                      ? "rgba(255,255,255,0.10)"
+                      : "rgba(0,0,0,0.32)"
                   })`,
                 mt: 1,
-                '&::before': {
+                "&::before": {
                   content: '""',
-                  display: 'block',
-                  position: 'absolute',
+                  display: "block",
+                  position: "absolute",
                   bottom: 10,
                   left: 0,
                   width: 10,
                   height: 10,
-                  bgcolor: 'background.paper',
-                  transform: 'translate(-50%, -50%) rotate(45deg)',
+                  bgcolor: "background.paper",
+                  transform: "translate(-50%, -50%) rotate(45deg)",
                   zIndex: 0,
                 },
               },

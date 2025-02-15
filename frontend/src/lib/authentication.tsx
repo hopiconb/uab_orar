@@ -18,7 +18,6 @@ export const loginUser = async (data: FieldValues) => {
     }
 
     const result = await response.json();
-    console.log("test: ", result);
     return result;
   } catch (error) {
     console.error("Login failed:", error);
