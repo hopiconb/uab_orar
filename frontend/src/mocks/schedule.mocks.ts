@@ -5,20 +5,20 @@ export const mockScheduleEvents: ClassesScheduleEvent[] = [
     id: '1',
     title: 'Arhitectura sistemelor de calcul',
     location: 'Corp C - Sala A2',
-    dayOfWeek: WeekDay.Monday, // Luni
+    dayOfWeek: WeekDay.Monday, 
     timeSlot: '10-12',
     professor: 'Prof. Popescu',
     type: 'curs',
-		color: '#FF0000'
+		color: '#FFE700'
   },
   {
     id: '2',
     title: 'Programare Web',
     location: 'Corp A - Sala 2.1',
-    dayOfWeek: WeekDay.Tuesday, // Marți
+    dayOfWeek: WeekDay.Tuesday, 
     timeSlot: '14-16',
     professor: 'Prof. Ionescu',
     type: 'laborator',
-		color	: '#00F558'
+		color	: '#AAB99A'
   }
 ];

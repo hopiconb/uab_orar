@@ -9,18 +9,28 @@ export interface Specialization {
   name: string;
 }
 
+export interface Year {
+  id: string;
+  specializationId: string;
+  number: number;  
+}
+
 export interface Group {
   id: string;
   specializationId: string;
+  yearId: string;  
   name: string;
+  // year: number;
+}
+
+export interface ScheduleFilters {
+  facultyId: string;
+  specializationId: string;
+  yearId: string;  
+  groupId: string;
   year: number;
 }
 
 export interface ScheduleFiltersProps {
-  onFiltersChange: (filters: {
-    facultyId: string;
-    specializationId: string;
-    groupId: string;
-    year: number;
-  }) => void;
+  onFiltersChange: (filters: ScheduleFilters) => void;
 }

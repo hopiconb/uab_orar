@@ -1,72 +1,93 @@
 import React, { useState } from 'react';
 import { 
-  // Box, 
   FormControl, 
   InputLabel, 
   Select, 
   MenuItem, 
-  // Typography,
   Stack,
   SelectChangeEvent
 } from '@mui/material';
-import { mockFaculties, mockSpecializations, mockGroups } from '../../mocks/facultySelect';
+import { mockFaculties, mockSpecializations, mockGroups, mockYears } from '../../mocks/facultySelect';
 import { ScheduleFiltersProps } from '../../types/scheduleSelectors';
 
 export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersChange }) => {
   const [selectedFaculty, setSelectedFaculty] = useState<string>('');
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
+  const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedGroup, setSelectedGroup] = useState<string>('');
-  const [selectedYear, setSelectedYear] = useState<number>(1);
 
   const availableSpecializations = mockSpecializations.filter(
     spec => spec.facultyId === selectedFaculty
   );
 
+  const availableYears = mockYears.filter(
+    year => year.specializationId === selectedSpecialization
+  );
+
   const availableGroups = mockGroups.filter(
-    group => group.specializationId === selectedSpecialization
+    group => group.specializationId === selectedSpecialization && group.yearId === selectedYear
   );
 
   const handleFacultyChange = (event: SelectChangeEvent<string>) => {
     const facultyId = event.target.value;
     setSelectedFaculty(facultyId);
     setSelectedSpecialization('');
+    setSelectedYear('');
     setSelectedGroup('');
-    setSelectedYear(1);
     
     onFiltersChange({
       facultyId,
       specializationId: '',
+      yearId: '',
       groupId: '',
-      year: 1
+      year: 0
     });
   };
 
   const handleSpecializationChange = (event: SelectChangeEvent<string>) => {
     const specializationId = event.target.value;
     setSelectedSpecialization(specializationId);
+    setSelectedYear('');
     setSelectedGroup('');
     
     onFiltersChange({
       facultyId: selectedFaculty,
       specializationId,
+      yearId: '',
       groupId: '',
-      year: selectedYear
+      year: 0
+    });
+  };
+
+  const handleYearChange = (event: SelectChangeEvent<string>) => {
+    const yearId = event.target.value;
+    setSelectedYear(yearId);
+    setSelectedGroup('');
+    
+    const selectedYearData = mockYears.find(y => y.id === yearId);
+    
+    onFiltersChange({
+      facultyId: selectedFaculty,
+      specializationId: selectedSpecialization,
+      yearId,
+      groupId: '',
+      year: selectedYearData ? selectedYearData.number : 0
     });
   };
 
   const handleGroupChange = (event: SelectChangeEvent<string>) => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
-    const group = mockGroups.find(g => g.id === groupId);
-    if (group) {
-      setSelectedYear(group.year);
-      onFiltersChange({
-        facultyId: selectedFaculty,
-        specializationId: selectedSpecialization,
-        groupId,
-        year: group.year
-      });
-    }
+    
+    const selectedYearData = mockYears.find(y => y.id === selectedYear);
+    
+    onFiltersChange({
+      facultyId: selectedFaculty,
+      specializationId: selectedSpecialization,
+      yearId: selectedYear,
+      groupId,
+      year: selectedYearData ? selectedYearData.number : 0
+    });
   };
 
   return (
@@ -75,7 +96,7 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
       spacing={2} 
       sx={{ 
         width: '100%',
-        maxWidth: '800px'  // Limităm lățimea maximă
+        maxWidth: '800px'  // Am mărit puțin pentru noul selector
       }}
     >
       <FormControl size="small" sx={{ minWidth: 200 }}>
@@ -109,6 +130,21 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
       </FormControl>
 
       <FormControl size="small" sx={{ minWidth: 150 }} disabled={!selectedSpecialization}>
+        <InputLabel>An</InputLabel>
+        <Select
+          value={selectedYear}
+          label="An"
+          onChange={handleYearChange}
+        >
+          {availableYears.map((year) => (
+            <MenuItem key={year.id} value={year.id}>
+              Anul {year.number}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <FormControl size="small" sx={{ minWidth: 150 }} disabled={!selectedYear}>
         <InputLabel>Grupă</InputLabel>
         <Select
           value={selectedGroup}
@@ -117,7 +153,7 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
         >
           {availableGroups.map((group) => (
             <MenuItem key={group.id} value={group.id}>
-              {group.name} (Anul {group.year})
+              {group.name}
             </MenuItem>
           ))}
         </Select>
