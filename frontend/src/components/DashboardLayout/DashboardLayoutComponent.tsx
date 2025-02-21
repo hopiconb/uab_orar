@@ -4,15 +4,12 @@ import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MapIcon from "@mui/icons-material/Map";
 import DvrIcon from "@mui/icons-material/Dvr";
-import {
-  AppProvider,
-  type Navigation,
-} from "@toolpad/core/AppProvider";
+import { AppProvider, type Navigation } from "@toolpad/core/AppProvider";
 import { DashboardLayout } from "@toolpad/core/DashboardLayout";
 import { useDemoRouter } from "@toolpad/core/internal";
 import logo from "../../assets/logo.svg";
-import { ScheduleTable } from "../ClassesSchedule/ClassesScheduleComponent";
-import SidebarFooterAccount from '../AccountComponent/CustomAccountComponent';
+import { ScheduleTable } from "../ClassesSchedule/ScheduleTableComponent";
+import SidebarFooterAccount from "../AccountComponent/CustomAccountComponent";
 
 const NAVIGATION: Navigation = [
   {
@@ -101,10 +98,10 @@ export default function DashboardLayoutComponent() {
       router={router}
       theme={demoTheme}
     >
-        <DashboardLayout
+      <DashboardLayout
         slots={{
           toolbarAccount: () => null,
-          sidebarFooter: (props) => <SidebarFooterAccount {...props} />
+          sidebarFooter: (props) => <SidebarFooterAccount {...props} />,
         }}
       >
         <DemoPageContent pathname={router.pathname} />

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { 
-  Box, 
+  // Box, 
   FormControl, 
   InputLabel, 
   Select, 
   MenuItem, 
-  Typography,
+  // Typography,
   Stack,
   SelectChangeEvent
 } from '@mui/material';
@@ -70,64 +70,59 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
   };
 
   return (
-    <Box sx={{ 
-      backgroundColor: 'background.paper',
-      p: 3,
-      borderRadius: 2,
-      boxShadow: 1,
-      mb: 4
-    }}>
-      <Typography variant="h6" sx={{ mb: 3 }}>
-        Filtrează Orarul
-      </Typography>
-      
-      <Stack direction="row" spacing={2}>
-        <FormControl sx={{ minWidth: 200 }}>
-          <InputLabel>Facultate</InputLabel>
-          <Select
-            value={selectedFaculty}
-            label="Facultate"
-            onChange={handleFacultyChange}
-          >
-            {mockFaculties.map((faculty) => (
-              <MenuItem key={faculty.id} value={faculty.id}>
-                {faculty.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+    <Stack 
+      direction="row" 
+      spacing={2} 
+      sx={{ 
+        width: '100%',
+        maxWidth: '800px'  // Limităm lățimea maximă
+      }}
+    >
+      <FormControl size="small" sx={{ minWidth: 200 }}>
+        <InputLabel>Facultate</InputLabel>
+        <Select
+          value={selectedFaculty}
+          label="Facultate"
+          onChange={handleFacultyChange}
+        >
+          {mockFaculties.map((faculty) => (
+            <MenuItem key={faculty.id} value={faculty.id}>
+              {faculty.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-        <FormControl sx={{ minWidth: 200 }} disabled={!selectedFaculty}>
-          <InputLabel>Specializare</InputLabel>
-          <Select
-            value={selectedSpecialization}
-            label="Specializare"
-            onChange={handleSpecializationChange}
-          >
-            {availableSpecializations.map((spec) => (
-              <MenuItem key={spec.id} value={spec.id}>
-                {spec.name}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
+      <FormControl size="small" sx={{ minWidth: 200 }} disabled={!selectedFaculty}>
+        <InputLabel>Specializare</InputLabel>
+        <Select
+          value={selectedSpecialization}
+          label="Specializare"
+          onChange={handleSpecializationChange}
+        >
+          {availableSpecializations.map((spec) => (
+            <MenuItem key={spec.id} value={spec.id}>
+              {spec.name}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
-        <FormControl sx={{ minWidth: 200 }} disabled={!selectedSpecialization}>
-          <InputLabel>Grupă</InputLabel>
-          <Select
-            value={selectedGroup}
-            label="Grupă"
-            onChange={handleGroupChange}
-          >
-            {availableGroups.map((group) => (
-              <MenuItem key={group.id} value={group.id}>
-                {group.name} (Anul {group.year})
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Stack>
-    </Box>
+      <FormControl size="small" sx={{ minWidth: 150 }} disabled={!selectedSpecialization}>
+        <InputLabel>Grupă</InputLabel>
+        <Select
+          value={selectedGroup}
+          label="Grupă"
+          onChange={handleGroupChange}
+        >
+          {availableGroups.map((group) => (
+            <MenuItem key={group.id} value={group.id}>
+              {group.name} (Anul {group.year})
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+    </Stack>
   );
 };
 
