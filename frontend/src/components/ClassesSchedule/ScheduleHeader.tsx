@@ -1,4 +1,3 @@
-// ScheduleHeader.tsx
 import React from 'react';
 import { Grid, Typography, useTheme, useMediaQuery } from '@mui/material';
 import { WEEK_DAYS } from '../../constants/scheduleConstants';

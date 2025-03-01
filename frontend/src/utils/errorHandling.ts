@@ -1,5 +1,4 @@
-// errorHandling.ts
-import { toast } from 'react-toastify'; // Assuming you'll install react-toastify
+import { toast } from 'react-toastify'; 
 
 export interface ApiError {
   message: string;

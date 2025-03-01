@@ -1,4 +1,3 @@
-// scheduleSlice.ts
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import { ScheduleState, BookedSlot } from '../../types/addSchdeule';
 

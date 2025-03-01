@@ -19,12 +19,11 @@ export const ScheduleTable: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<ClassesScheduleEvent | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('weekly');
-  const [selectedDay, setSelectedDay] = useState<number>(0); // Default to Monday (0)
+  const [selectedDay, setSelectedDay] = useState<number>(0); 
   const theme = useTheme();
   
-  // Breakpoints for responsiveness
-  const isExtraSmall = useMediaQuery(theme.breakpoints.down("sm")); // < 600px
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // < 900px
+  const isExtraSmall = useMediaQuery(theme.breakpoints.down("sm")); 
+  const isMobile = useMediaQuery(theme.breakpoints.down("md")); 
 
   const [activeFilters, setActiveFilters] = useState<ScheduleFilters>({
     facultyId: '',
@@ -34,7 +33,6 @@ export const ScheduleTable: React.FC = () => {
     year: 0
   });
 
-  // Memoized time slots array
   const timeSlots = useMemo(() => 
     TIME_SLOTS.map(slot => slot.value),
     []
@@ -103,7 +101,6 @@ export const ScheduleTable: React.FC = () => {
     setSelectedDay(day);
   }, []);
 
-  // Mobile view for daily schedule events
   const MobileDailyScheduleView = () => (
     <Box sx={{ mt: 2 }}>
       <Tabs
@@ -177,7 +174,6 @@ export const ScheduleTable: React.FC = () => {
     </Box>
   );
 
-  // Mobile view for weekly schedule events
   const MobileWeeklyScheduleView = () => (
     <Box sx={{ mt: 2 }}>
       {timeSlots.map((timeSlot) => (
@@ -232,10 +228,8 @@ export const ScheduleTable: React.FC = () => {
 
   return (
     <ContentContainer>
-      {/* Header with actions */}
       <ScheduleActions onAddEvent={handleOpenModal} />
 
-      {/* Vertical selectors on all devices */}
       <Box sx={{ 
         mb: { xs: 2, sm: 3 },
         width: '100%'
@@ -243,7 +237,6 @@ export const ScheduleTable: React.FC = () => {
         <ScheduleSelectors onFiltersChange={handleFiltersChange} />
       </Box>
 
-      {/* Mobile view mode selector */}
       {isMobile && (
         <Box sx={{ mb: 2 }}>
           <Tabs
@@ -258,14 +251,11 @@ export const ScheduleTable: React.FC = () => {
         </Box>
       )}
 
-      {/* Responsive schedule view */}
       {isMobile ? (
-        // Mobile view
         <ResponsivePaper>
           {viewMode === 'daily' ? <MobileDailyScheduleView /> : <MobileWeeklyScheduleView />}
         </ResponsivePaper>
       ) : (
-        // Desktop table view
         <Box sx={{ 
           overflowX: "auto",
           '& ::-webkit-scrollbar': {
@@ -284,18 +274,16 @@ export const ScheduleTable: React.FC = () => {
             sx={{
               width: "100%",
               minWidth: {
-                xs: "800px", // Minimum width on mobile
-                md: "100%"   // Normal width on desktop
+                xs: "800px", 
+                md: "100%"   
               },
               border: `1px solid ${theme.palette.divider}`,
               borderRadius: 2,
               backgroundColor: theme.palette.background.paper,
             }}
           >
-            {/* Schedule header component */}
             <ScheduleHeader />
             
-            {/* Schedule rows */}
             {timeSlots.map((timeSlot, rowIndex) => (
               <ScheduleRow
                 key={timeSlot}

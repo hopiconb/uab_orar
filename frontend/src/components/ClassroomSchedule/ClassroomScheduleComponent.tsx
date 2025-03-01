@@ -34,7 +34,6 @@ const getDayName = (dayIndex: number): string => {
   return days[dayIndex] || '';
 };
 
-// Component for displaying a single schedule item
 const ScheduleItem: React.FC<{ item: ClassroomScheduleItem }> = ({ item }) => {
   return (
     <ScheduleEventCard 
@@ -94,7 +93,6 @@ const ScheduleItem: React.FC<{ item: ClassroomScheduleItem }> = ({ item }) => {
   );
 };
 
-// Main component for the Classroom Schedule feature
 export const ClassroomSchedule: React.FC = () => {
   const [selectedClassroomId, setSelectedClassroomId] = useState<string>('');
   const [classroomData, setClassroomData] = useState<ClassroomWithSchedule | null>(null);
@@ -102,18 +100,15 @@ export const ClassroomSchedule: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const theme = useTheme();
 
-  // Memoized time slots array
   const timeSlots = useMemo(() => 
     TIME_SLOTS.map(slot => slot.value),
     []
   );
 
-  // Handle classroom selection change
   const handleClassroomChange = (event: SelectChangeEvent<string>) => {
     setSelectedClassroomId(event.target.value);
   };
 
-  // Fetch classroom data when selection changes
   useEffect(() => {
     if (!selectedClassroomId) {
       setClassroomData(null);
@@ -125,10 +120,8 @@ export const ClassroomSchedule: React.FC = () => {
       setError(null);
       
       try {
-        // Simulate API call with a delay
         await new Promise(resolve => setTimeout(resolve, 800));
         
-        // Get classroom data from mock
         const data = getClassroomWithSchedule(selectedClassroomId);
         
         if (data) {
@@ -147,7 +140,6 @@ export const ClassroomSchedule: React.FC = () => {
     fetchClassroomData();
   }, [selectedClassroomId]);
 
-  // Get schedule items for a specific day and time slot
   const getScheduleItemForSlot = (dayIndex: number, timeSlot: string) => {
     if (!classroomData?.scheduleItems) return null;
     
@@ -156,7 +148,6 @@ export const ClassroomSchedule: React.FC = () => {
     );
   };
 
-  // Create a schedule table for the selected classroom
   const renderScheduleTable = () => {
     if (!classroomData) return null;
 
@@ -215,7 +206,6 @@ export const ClassroomSchedule: React.FC = () => {
     );
   };
 
-  // Render classroom info card
   const renderClassroomInfo = () => {
     if (!classroomData) return null;
 
@@ -269,7 +259,6 @@ export const ClassroomSchedule: React.FC = () => {
     );
   };
 
-  // Render schedule cards
   const renderScheduleCards = () => {
     if (!classroomData?.scheduleItems.length) {
       return (

@@ -1,4 +1,3 @@
-// ScheduleRow.tsx
 import React from 'react';
 import { Grid, Typography, useTheme, useMediaQuery, Tooltip } from '@mui/material';
 import { ClassesScheduleEvent } from '../../types/classesSchedule';

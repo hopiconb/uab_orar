@@ -14,11 +14,9 @@ const ScheduleEvent: React.FC<ScheduleEventProps> = ({ event, onClick }) => {
   const isExtraSmall = useMediaQuery(theme.breakpoints.down('sm'));
   const isSmall = useMediaQuery(theme.breakpoints.down('md'));
 
-  // Determine text size based on screen size
   const titleVariant = isExtraSmall ? 'caption' : isSmall ? 'body2' : 'body1';
   const detailsVariant = isExtraSmall ? 'caption' : 'caption';
 
-  // Truncate text for smaller screens
   const truncateText = (text: string, maxLength: number) => {
     if (!text) return '';
     return text.length > maxLength ? `${text.substring(0, maxLength)}...` : text;

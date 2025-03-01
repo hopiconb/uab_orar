@@ -1,4 +1,3 @@
-// StyledComponents.tsx
 import React from 'react';
 import { styled } from '@mui/system';
 import { 
@@ -13,7 +12,6 @@ import {
 } from '@mui/material';
 import { TypographyProps } from '@mui/material/Typography';
 
-// Common container styles
 export const ContentContainer = styled(Box)(({ theme }) => ({
   padding: theme.spacing(3),
   width: '100%',
@@ -28,7 +26,6 @@ export const ContentContainer = styled(Box)(({ theme }) => ({
   },
 }));
 
-// Card with hover effect
 export const HoverCard = styled(Card)(({ theme }) => ({
   transition: 'transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out',
   '&:hover': {
@@ -37,7 +34,6 @@ export const HoverCard = styled(Card)(({ theme }) => ({
   },
 }));
 
-// Primary button with consistent styling
 export const PrimaryButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.primary.main,
   color: theme.palette.primary.contrastText,
@@ -51,7 +47,6 @@ export const PrimaryButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Secondary button with consistent styling
 export const SecondaryButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.secondary.main,
   color: theme.palette.secondary.contrastText,
@@ -65,7 +60,6 @@ export const SecondaryButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Danger button with consistent styling
 export const DangerButton = styled(Button)(({ theme }) => ({
   backgroundColor: theme.palette.error.main,
   color: theme.palette.error.contrastText,
@@ -79,7 +73,6 @@ export const DangerButton = styled(Button)(({ theme }) => ({
   },
 }));
 
-// Section title with consistent styling
 export const SectionTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontWeight: 'bold',
   marginBottom: theme.spacing(2),
@@ -90,7 +83,6 @@ export const SectionTitle = styled(Typography)<TypographyProps>(({ theme }) => (
   },
 }));
 
-// Card for schedule events
 export const ScheduleEventCard = styled(Paper)(({ theme }) => ({
   borderRadius: theme.shape.borderRadius,
   padding: theme.spacing(1.5),
@@ -106,7 +98,6 @@ export const ScheduleEventCard = styled(Paper)(({ theme }) => ({
   },
 }));
 
-// Form container with consistent styling
 export const FormWrapper = styled(FormControl)(({ theme }) => ({
   width: '100%',
   maxWidth: 400,
@@ -127,11 +118,10 @@ export const FormWrapper = styled(FormControl)(({ theme }) => ({
   },
 }));
 
-// Loading button component with spinner
 interface LoadingButtonProps {
   loading: boolean;
   children: React.ReactNode;
-  [key: string]: any; // For other Button props
+  [key: string]: any; 
 }
 
 export const LoadingButton = React.memo(({ loading, children, ...props }: LoadingButtonProps) => (
@@ -144,7 +134,6 @@ export const LoadingButton = React.memo(({ loading, children, ...props }: Loadin
   </Button>
 ));
 
-// Responsive grid container
 export const ResponsiveGrid = styled(Box)(({ theme }) => ({
   display: 'grid',
   gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))',
@@ -156,7 +145,6 @@ export const ResponsiveGrid = styled(Box)(({ theme }) => ({
   },
 }));
 
-// Page section with consistent styling
 export const PageSection = styled(Box)(({ theme }) => ({
   marginBottom: theme.spacing(4),
   [theme.breakpoints.down('sm')]: {
@@ -164,7 +152,6 @@ export const PageSection = styled(Box)(({ theme }) => ({
   },
 }));
 
-// Responsive Paper component
 export const ResponsivePaper = styled(Paper)(({ theme }) => ({
   padding: theme.spacing(3),
   borderRadius: theme.shape.borderRadius,
@@ -174,7 +161,6 @@ export const ResponsivePaper = styled(Paper)(({ theme }) => ({
   },
 }));
 
-// PDF Viewer Container
 export const PDFViewerContainer = styled(Box)(({ theme }) => ({
   width: '100%',
   height: 'calc(100vh - 200px)',

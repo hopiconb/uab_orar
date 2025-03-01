@@ -1,4 +1,3 @@
-// ScheduleActions.tsx
 import React from 'react';
 import { Stack, Typography, Button, useTheme, useMediaQuery } from '@mui/material';
 import { PrimaryButton } from '../common/StyledComponents';
