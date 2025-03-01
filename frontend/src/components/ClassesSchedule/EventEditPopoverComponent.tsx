@@ -145,34 +145,34 @@ export const EventEditPopover: React.FC<EventEditPopoverProps> = ({
 
           <Box sx={{ 
             display: 'flex', 
+            flexDirection: 'row',
             justifyContent: 'space-between', 
-            alignItems: 'center',
-            mt: 2,
-            gap: 1
+            mt: 2
           }}>
             <DangerButton 
-              size="small"
+              variant="contained"
               onClick={handleDelete}
               aria-label="Șterge evenimentul"
+              sx={{ width: '30%' }}
             >
               ȘTERGE
             </DangerButton>
-            <Box sx={{ display: 'flex', gap: 1 }}>
-              <SecondaryButton 
-                size="small"
-                onClick={onClose}
-                aria-label="Anulează editarea"
-              >
-                ANULEAZĂ
-              </SecondaryButton>
-              <PrimaryButton 
-                size="small"
-                onClick={handleSave}
-                aria-label="Salvează modificările"
-              >
-                SALVEAZĂ
-              </PrimaryButton>
-            </Box>
+            <SecondaryButton 
+              variant="outlined"
+              onClick={onClose}
+              aria-label="Anulează editarea"
+              sx={{ width: '30%' }}
+            >
+              ANULEAZĂ
+            </SecondaryButton>
+            <PrimaryButton 
+              variant="contained"
+              onClick={handleSave}
+              aria-label="Salvează modificările"
+              sx={{ width: '30%' }}
+            >
+              SALVEAZĂ
+            </PrimaryButton>
           </Box>
         </Stack>
       </Box>

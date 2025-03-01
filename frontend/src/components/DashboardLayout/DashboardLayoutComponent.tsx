@@ -71,9 +71,8 @@ function DemoPageContent({ pathname }: { pathname: string }) {
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
   
   useEffect(() => {
-    // If pathname is "/hartaSalilor", redirect to external URL
     if (pathname === "/hartaSalilor") {
-      window.open("http://oeconomica.uab.ro/orar/", "_blank");
+      window.open("https://uab.ro/media/Sali%20UAB%202025%20RO%20-%20update%2010.02.2025_1XRXDT3.pdf", "_blank");
     }
   }, [pathname]);
 

@@ -1,7 +1,6 @@
-import { Classroom, ClassroomWithSchedule } from '../types/classroomMap';
+import { Classroom, ClassroomWithSchedule, ClassroomScheduleItem } from '../types/classroomMap';
 import { WeekDay } from '../types/classesSchedule';
 
-// List of classrooms
 export const mockClassrooms: Classroom[] = [
   {
     id: '1',
@@ -50,14 +49,11 @@ export const mockClassrooms: Classroom[] = [
   }
 ];
 
-// Mock schedule data for each classroom
 export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSchedule | null => {
   const classroom = mockClassrooms.find(c => c.id === classroomId);
   if (!classroom) return null;
 
-  // Different schedule for each classroom
-  const scheduleItems = [
-    // A2 classroom schedule
+  const scheduleItems: ClassroomScheduleItem[] = [
     ...(classroomId === '1' ? [
       {
         id: 'a2-1',
@@ -65,7 +61,7 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Popescu',
         dayOfWeek: WeekDay.Monday,
         timeSlot: '10-12',
-        type: 'curs',
+        type: 'curs' as const,
         color: '#FFE700',
         groupName: 'Informatică anul 2'
       },
@@ -75,13 +71,12 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Ionescu',
         dayOfWeek: WeekDay.Wednesday,
         timeSlot: '14-16',
-        type: 'curs',
+        type: 'curs' as const,
         color: '#AAB99A',
         groupName: 'Informatică anul 2'
       }
     ] : []),
     
-    // A3 classroom schedule
     ...(classroomId === '2' ? [
       {
         id: 'a3-1',
@@ -89,7 +84,7 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Georgescu',
         dayOfWeek: WeekDay.Tuesday,
         timeSlot: '08-10',
-        type: 'curs',
+        type: 'curs' as const,
         color: '#FFB6C1',
         groupName: 'Informatică anul 1'
       },
@@ -99,13 +94,12 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Marinescu',
         dayOfWeek: WeekDay.Thursday,
         timeSlot: '12-14',
-        type: 'curs',
+        type: 'curs' as const,
         color: '#ADD8E6',
         groupName: 'Matematică anul 1'
       }
     ] : []),
     
-    // H1.5 classroom schedule
     ...(classroomId === '3' ? [
       {
         id: 'h15-1',
@@ -113,7 +107,7 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Dumitrescu',
         dayOfWeek: WeekDay.Monday,
         timeSlot: '16-18',
-        type: 'laborator',
+        type: 'laborator' as const,
         color: '#98FB98',
         groupName: 'Informatică anul 3'
       },
@@ -123,13 +117,12 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Vasilescu',
         dayOfWeek: WeekDay.Friday,
         timeSlot: '10-12',
-        type: 'laborator',
+        type: 'laborator' as const,
         color: '#FFA07A',
         groupName: 'Informatică anul 3'
       }
     ] : []),
     
-    // B2.1 classroom schedule
     ...(classroomId === '4' ? [
       {
         id: 'b21-1',
@@ -137,13 +130,12 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Johnson',
         dayOfWeek: WeekDay.Wednesday,
         timeSlot: '08-10',
-        type: 'seminar',
+        type: 'seminar' as const,
         color: '#D8BFD8',
         groupName: 'Informatică anul 1'
       }
     ] : []),
     
-    // C1.3 classroom schedule
     ...(classroomId === '5' ? [
       {
         id: 'c13-1',
@@ -151,7 +143,7 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Constantinescu',
         dayOfWeek: WeekDay.Thursday,
         timeSlot: '16-18',
-        type: 'laborator',
+        type: 'laborator' as const,
         color: '#87CEFA',
         groupName: 'Informatică anul 2'
       },
@@ -161,7 +153,7 @@ export const getClassroomWithSchedule = (classroomId: string): ClassroomWithSche
         professor: 'Prof. Petrescu',
         dayOfWeek: WeekDay.Tuesday,
         timeSlot: '14-16',
-        type: 'laborator',
+        type: 'laborator' as const,
         color: '#F0E68C',
         groupName: 'Informatică anul 3'
       }

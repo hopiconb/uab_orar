@@ -10,12 +10,18 @@ import {
   Grid,
   Paper,
   Alert,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { fetchBookedSlots, createBookedSlot, clearError, setCustomError } from "../../store/slices/scheduleSlice";
-import { TIME_SLOTS, WEEK_DAYS } from "../../constants/scheduleConstants";
-import { LoadingButton, DangerButton } from "../common/StyledComponents";
+import { TIME_SLOTS, WEEK_DAYS, EVENT_TYPES } from "../../constants/scheduleConstants";
+import { LoadingButton, DangerButton, PrimaryButton, SecondaryButton } from "../common/StyledComponents";
 import { handleApiError } from "../../utils/errorHandling";
+import { mockClassrooms } from "../../mocks/classrooms.mocks";
 
 interface EventModalProps {
   open: boolean;
@@ -29,12 +35,23 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
   const [eventName, setEventName] = useState<string>("");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | null>(null);
+  const [eventType, setEventType] = useState<string>("");
+  const [selectedRoom, setSelectedRoom] = useState<string>("");
+  const [availableRooms, setAvailableRooms] = useState<Array<{ id: string, name: string, building: string }>>([]);
 
   const theme = useTheme();
 
   useEffect(() => {
     if (open) {
       dispatch(fetchBookedSlots());
+      // Use the mockClassrooms data for available rooms
+      setAvailableRooms(
+        mockClassrooms.map(room => ({
+          id: room.id,
+          name: room.name,
+          building: room.building
+        }))
+      );
     }
     return () => {
       dispatch(clearError());
@@ -85,6 +102,16 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
       dispatch(setCustomError("Vă rugăm să selectați un interval orar"));
       return;
     }
+
+    if (!eventType) {
+      dispatch(setCustomError("Vă rugăm să selectați tipul evenimentului"));
+      return;
+    }
+
+    if (!selectedRoom) {
+      dispatch(setCustomError("Vă rugăm să selectați sala"));
+      return;
+    }
   
     if (selectedDay !== null && selectedTimeSlot !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, selectedTimeSlot);
@@ -98,6 +125,9 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           professorName: eventName,
           day: selectedDay,
           timeSlot: selectedTimeSlot,
+          // In a real implementation, you would include the new fields here
+          // eventType: eventType,
+          // roomId: selectedRoom,
         })).unwrap();
         
         handleClose();
@@ -105,7 +135,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         handleApiError(err, 'Eroare la salvarea evenimentului');
       }
     }
-  }, [eventName, selectedDay, selectedTimeSlot, dispatch, isTimeSlotBooked, handleClose]);
+  }, [eventName, selectedDay, selectedTimeSlot, eventType, selectedRoom, dispatch, isTimeSlotBooked, handleClose]);
 
   return (
     <Dialog 
@@ -143,6 +173,40 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           helperText={!eventName.trim() && error?.includes("numele orei") ? "Acest câmp este obligatoriu" : ""}
         />
 
+        <FormControl fullWidth sx={{ mt: 1 }}>
+          <InputLabel id="event-type-label">Tipul Evenimentului</InputLabel>
+          <Select
+            labelId="event-type-label"
+            value={eventType}
+            label="Tipul Evenimentului"
+            onChange={(e) => setEventType(e.target.value as string)}
+            disabled={isLoading}
+          >
+            {EVENT_TYPES.map((type) => (
+              <MenuItem key={type.value} value={type.value}>
+                {type.label}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
+        <FormControl fullWidth sx={{ mt: 1 }}>
+          <InputLabel id="room-select-label">Selectează Sala</InputLabel>
+          <Select
+            labelId="room-select-label"
+            value={selectedRoom}
+            label="Selectează Sala"
+            onChange={(e) => setSelectedRoom(e.target.value as string)}
+            disabled={isLoading}
+          >
+            {availableRooms.map((room) => (
+              <MenuItem key={room.id} value={room.id}>
+                {room.building} - Sala {room.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+
         {error && (
           <Alert severity="error" sx={{ mt: 2 }}>
             {error}
@@ -154,7 +218,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         </Typography>
         <Grid container spacing={1} role="radiogroup" aria-label="Zile ale săptămânii">
           {WEEK_DAYS.map((day) => (
-            <Grid item xs={12} sm={4} md={3} key={day.value}>
+            <Grid item xs={6} sm={4} md={3} key={day.value}>
               <Paper
                 sx={{
                   p: 1,
@@ -200,20 +264,20 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Paper
                   sx={{
-                    p: 1.5,
+                    p: 1,
                     textAlign: "center",
-                    cursor: isBooked || isLoading ? "not-allowed" : "pointer",
-                    bgcolor: isBooked 
-                      ? "error.light"
-                      : selectedTimeSlot === index 
-                        ? "primary.main" 
+                    cursor: isLoading || isBooked ? "not-allowed" : "pointer",
+                    bgcolor: selectedTimeSlot === index 
+                      ? "primary.main" 
+                      : isBooked 
+                        ? "error.light"
                         : "background.paper",
-                    color: (isBooked || selectedTimeSlot === index) 
-                      ? "primary.contrastText" 
+                    color: selectedTimeSlot === index || isBooked
+                      ? "primary.contrastText"
                       : "text.primary",
                     '&:hover': {
                       bgcolor: isBooked 
-                        ? "error.light"
+                        ? "error.light" 
                         : selectedTimeSlot === index 
                           ? "primary.dark"
                           : theme.palette.mode === 'dark' 
@@ -221,7 +285,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                             : 'rgba(0, 0, 0, 0.04)',
                     },
                     transition: 'background-color 0.3s',
-                    opacity: isBooked || isLoading ? 0.7 : 1,
+                    opacity: isLoading ? 0.7 : 1,
                   }}
                   elevation={selectedTimeSlot === index ? 4 : 1}
                   onClick={() => !isLoading && !isBooked && handleTimeSlotSelect(index)}
@@ -229,18 +293,16 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                   aria-checked={selectedTimeSlot === index}
                   aria-label={slot.label}
                   aria-disabled={isBooked}
-                  tabIndex={isBooked || isLoading ? -1 : 0}
+                  tabIndex={isLoading || isBooked ? -1 : 0}
                   onKeyDown={(e) => {
                     if (e.key === 'Enter' || e.key === ' ') {
                       !isLoading && !isBooked && handleTimeSlotSelect(index);
                     }
                   }}
                 >
-                  <Typography variant="body1">
-                    {slot.label}
-                  </Typography>
+                  {slot.label}
                   {isBooked && (
-                    <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
+                    <Typography variant="caption" component="div" sx={{ mt: 0.5 }}>
                       Rezervat
                     </Typography>
                   )}
@@ -250,29 +312,23 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           })}
         </Grid>
       </DialogContent>
-
-      <DialogActions sx={{ p: 3 }}>
-        <DangerButton 
-          onClick={handleClose} 
+      <DialogActions sx={{ px: 3, pb: 3, justifyContent: 'space-between' }}>
+        <SecondaryButton
+          onClick={handleClose}
           disabled={isLoading}
           aria-label="Anulează adăugarea evenimentului"
+          variant="outlined"
         >
-          Anulează
-        </DangerButton>
-        <LoadingButton
+          ANULEAZĂ
+        </SecondaryButton>
+        <PrimaryButton
           onClick={handleSave}
-          loading={isLoading}
-          variant="contained"
-          color="primary"
-          disabled={selectedDay === null || selectedTimeSlot === null || error !== null}
-          sx={{
-            backgroundColor: theme.palette.mode === "dark" ? "rgb(25,118,210)" : "primary.main",
-            color: theme.palette.mode === "dark" ? "white" : "primary.contrastText",
-          }}
+          disabled={isLoading}
           aria-label="Salvează evenimentul"
+          variant="contained"
         >
-          Salvează
-        </LoadingButton>
+          {isLoading ? "Se salvează..." : "SALVEAZĂ"}
+        </PrimaryButton>
       </DialogActions>
     </Dialog>
   );
