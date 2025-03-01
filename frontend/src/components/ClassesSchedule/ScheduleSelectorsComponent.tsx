@@ -5,7 +5,10 @@ import {
   Select, 
   MenuItem, 
   Stack,
-  SelectChangeEvent
+  SelectChangeEvent,
+  useTheme,
+  useMediaQuery,
+  Box
 } from '@mui/material';
 import { mockFaculties, mockSpecializations, mockGroups, mockYears } from '../../mocks/facultySelect';
 import { ScheduleFiltersProps } from '../../types/scheduleSelectors';
@@ -15,6 +18,8 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
   const [selectedSpecialization, setSelectedSpecialization] = useState<string>('');
   const [selectedYear, setSelectedYear] = useState<string>('');
   const [selectedGroup, setSelectedGroup] = useState<string>('');
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
 
   const availableSpecializations = mockSpecializations.filter(
     spec => spec.facultyId === selectedFaculty
@@ -91,74 +96,82 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
   };
 
   return (
-    <Stack 
-      direction="row" 
-      spacing={2} 
-      sx={{ 
-        width: '100%',
-        maxWidth: '800px'  // Am mărit puțin pentru noul selector
-      }}
-    >
-      <FormControl size="small" sx={{ minWidth: 200 }}>
-        <InputLabel>Facultate</InputLabel>
-        <Select
-          value={selectedFaculty}
-          label="Facultate"
-          onChange={handleFacultyChange}
-        >
-          {mockFaculties.map((faculty) => (
-            <MenuItem key={faculty.id} value={faculty.id}>
-              {faculty.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+    <Box sx={{ width: '100%' }}>
+      <Stack 
+        direction={isMobile ? "column" : "row"} 
+        spacing={isMobile ? 1 : 2} 
+        sx={{ 
+          width: '100%',
+          maxWidth: isMobile ? '100%' : '800px'
+        }}
+      >
+        <FormControl size="small" sx={{ width: '100%', minWidth: isMobile ? '100%' : 200 }}>
+          <InputLabel>Facultate</InputLabel>
+          <Select
+            value={selectedFaculty}
+            label="Facultate"
+            onChange={handleFacultyChange}
+          >
+            {mockFaculties.map((faculty) => (
+              <MenuItem key={faculty.id} value={faculty.id}>
+                {faculty.name}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
 
-      <FormControl size="small" sx={{ minWidth: 200 }} disabled={!selectedFaculty}>
-        <InputLabel>Specializare</InputLabel>
-        <Select
-          value={selectedSpecialization}
-          label="Specializare"
-          onChange={handleSpecializationChange}
-        >
-          {availableSpecializations.map((spec) => (
-            <MenuItem key={spec.id} value={spec.id}>
-              {spec.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        {(selectedFaculty || !isMobile) && (
+          <FormControl size="small" sx={{ width: '100%', minWidth: isMobile ? '100%' : 200 }} disabled={!selectedFaculty}>
+            <InputLabel>Specializare</InputLabel>
+            <Select
+              value={selectedSpecialization}
+              label="Specializare"
+              onChange={handleSpecializationChange}
+            >
+              {availableSpecializations.map((spec) => (
+                <MenuItem key={spec.id} value={spec.id}>
+                  {spec.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
-      <FormControl size="small" sx={{ minWidth: 150 }} disabled={!selectedSpecialization}>
-        <InputLabel>An</InputLabel>
-        <Select
-          value={selectedYear}
-          label="An"
-          onChange={handleYearChange}
-        >
-          {availableYears.map((year) => (
-            <MenuItem key={year.id} value={year.id}>
-              Anul {year.number}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
+        {((selectedSpecialization && selectedFaculty) || !isMobile) && (
+          <FormControl size="small" sx={{ width: '100%', minWidth: isMobile ? '100%' : 150 }} disabled={!selectedSpecialization}>
+            <InputLabel>An</InputLabel>
+            <Select
+              value={selectedYear}
+              label="An"
+              onChange={handleYearChange}
+            >
+              {availableYears.map((year) => (
+                <MenuItem key={year.id} value={year.id}>
+                  Anul {year.number}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
 
-      <FormControl size="small" sx={{ minWidth: 150 }} disabled={!selectedYear}>
-        <InputLabel>Grupă</InputLabel>
-        <Select
-          value={selectedGroup}
-          label="Grupă"
-          onChange={handleGroupChange}
-        >
-          {availableGroups.map((group) => (
-            <MenuItem key={group.id} value={group.id}>
-              {group.name}
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-    </Stack>
+        {((selectedYear && selectedSpecialization && selectedFaculty) || !isMobile) && (
+          <FormControl size="small" sx={{ width: '100%', minWidth: isMobile ? '100%' : 150 }} disabled={!selectedYear}>
+            <InputLabel>Grupă</InputLabel>
+            <Select
+              value={selectedGroup}
+              label="Grupă"
+              onChange={handleGroupChange}
+            >
+              {availableGroups.map((group) => (
+                <MenuItem key={group.id} value={group.id}>
+                  {group.name}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        )}
+      </Stack>
+    </Box>
   );
 };
 

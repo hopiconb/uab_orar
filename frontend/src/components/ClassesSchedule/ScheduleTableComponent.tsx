@@ -1,23 +1,30 @@
-import React, { useState, useEffect } from "react";
-import { Grid, Typography, Box, Stack, Button, useTheme, useMediaQuery } from "@mui/material";
+import React, { useState, useEffect, useCallback, useMemo } from "react";
+import { Grid, Box, useTheme, useMediaQuery, Typography, Paper, Tabs, Tab } from "@mui/material";
 import EventModal from "./EventModalComponent";
 import { ClassesScheduleEvent } from "../../types/classesSchedule";
 import { mockScheduleEvents } from "../../mocks/schedule.mocks";
 import { EventEditPopover } from "./EventEditPopoverComponent";
 import ScheduleSelectors from "./ScheduleSelectorsComponent";
 import { ScheduleFilters } from "../../types/scheduleSelectors";
+import { TIME_SLOTS, WEEK_DAYS } from "../../constants/scheduleConstants";
+import { ContentContainer, ResponsivePaper } from "../common/StyledComponents";
+import ScheduleHeader from "./ScheduleHeader";
+import ScheduleRow from "./ScheduleRow";
+import ScheduleActions from "./ScheduleActions";
+import { handleApiError } from "../../utils/errorHandling";
 
 export const ScheduleTable: React.FC = () => {
-  const timeSlots = ["08-10", "10-12", "12-14", "14-16", "16-18", "18-20"];
   const [open, setOpen] = useState<boolean>(false);
   const [scheduleEvents, setScheduleEvents] = useState<ClassesScheduleEvent[]>([]);
   const [selectedEvent, setSelectedEvent] = useState<ClassesScheduleEvent | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+  const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('weekly');
+  const [selectedDay, setSelectedDay] = useState<number>(0); // Default to Monday (0)
   const theme = useTheme();
   
-  // Breakpoints pentru responsivitate
+  // Breakpoints for responsiveness
   const isExtraSmall = useMediaQuery(theme.breakpoints.down("sm")); // < 600px
-  const isSmall = useMediaQuery(theme.breakpoints.down("md")); // < 900px
+  const isMobile = useMediaQuery(theme.breakpoints.down("md")); // < 900px
 
   const [activeFilters, setActiveFilters] = useState<ScheduleFilters>({
     facultyId: '',
@@ -27,309 +34,283 @@ export const ScheduleTable: React.FC = () => {
     year: 0
   });
 
+  // Memoized time slots array
+  const timeSlots = useMemo(() => 
+    TIME_SLOTS.map(slot => slot.value),
+    []
+  );
+
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
         await new Promise(resolve => setTimeout(resolve, 1000));
         setScheduleEvents(mockScheduleEvents);
       } catch (error) {
-        console.error('Error fetching schedule:', error);
+        handleApiError(error, 'Eroare la încărcarea orarului');
       }
     };
 
     fetchSchedule();
   }, [activeFilters]);
 
-  const handleFiltersChange = (filters: ScheduleFilters) => {
+  const handleFiltersChange = useCallback((filters: ScheduleFilters) => {
     setActiveFilters(filters);
-  };
+  }, []);
 
-  const getEventForSlot = (timeSlot: string, dayIndex: number) => {
+  const getEventForSlot = useCallback((timeSlot: string, dayIndex: number) => {
     return scheduleEvents.find(
       event => event.timeSlot === timeSlot && event.dayOfWeek === dayIndex
     );
-  };
+  }, [scheduleEvents]);
 
-  const handleEventClick = (event: ClassesScheduleEvent, element: HTMLElement) => {
+  const handleEventClick = useCallback((event: ClassesScheduleEvent, element: HTMLElement) => {
     setSelectedEvent(event);
     setAnchorEl(element);
-  };
+  }, []);
 
-  const handleClosePopover = () => {
+  const handleClosePopover = useCallback(() => {
     setSelectedEvent(null);
     setAnchorEl(null);
-  };
+  }, []);
 
-  const handleSaveEvent = (updatedEvent: ClassesScheduleEvent) => {
+  const handleOpenModal = useCallback(() => {
+    setOpen(true);
+  }, []);
+
+  const handleCloseModal = useCallback(() => {
+    setOpen(false);
+  }, []);
+
+  const handleSaveEvent = useCallback((updatedEvent: ClassesScheduleEvent) => {
     setScheduleEvents(prevEvents => 
       prevEvents.map(event => 
         event.id === updatedEvent.id ? updatedEvent : event
       )
     );
-  };
+  }, []);
 
-  const handleDeleteEvent = (eventId: string) => {
+  const handleDeleteEvent = useCallback((eventId: string) => {
     setScheduleEvents(prevEvents => 
       prevEvents.filter(event => event.id !== eventId)
     );
-  };
+  }, []);
+
+  const handleViewModeChange = useCallback((mode: 'daily' | 'weekly') => {
+    setViewMode(mode);
+  }, []);
+
+  const handleDayChange = useCallback((day: number) => {
+    setSelectedDay(day);
+  }, []);
+
+  // Mobile view for daily schedule events
+  const MobileDailyScheduleView = () => (
+    <Box sx={{ mt: 2 }}>
+      <Tabs
+        value={selectedDay}
+        onChange={(_, newValue) => handleDayChange(newValue)}
+        variant="scrollable"
+        scrollButtons="auto"
+        aria-label="Zile ale săptămânii"
+        sx={{ mb: 2, borderBottom: 1, borderColor: 'divider' }}
+      >
+        {WEEK_DAYS.map((day) => (
+          <Tab key={day.value} label={day.label} value={day.value} />
+        ))}
+      </Tabs>
+      
+      {timeSlots.map((timeSlot) => {
+        const event = getEventForSlot(timeSlot, selectedDay);
+        return (
+          <Box key={timeSlot} sx={{ mb: 2 }}>
+            <Typography 
+              variant="subtitle1" 
+              fontWeight="bold" 
+              sx={{ 
+                mb: 1, 
+                backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
+                p: 1,
+                borderRadius: 1
+              }}
+            >
+              {timeSlot.replace('-', ':00 - ')}:00
+            </Typography>
+            
+            {event ? (
+              <Paper
+                sx={{
+                  p: 1.5,
+                  backgroundColor: event.color || theme.palette.primary.light,
+                  borderLeft: `4px solid ${event.color || theme.palette.primary.main}`,
+                  cursor: 'pointer',
+                  '&:hover': {
+                    transform: 'translateY(-2px)',
+                    boxShadow: theme.shadows[2],
+                  }
+                }}
+                onClick={(e) => handleEventClick(event, e.currentTarget)}
+              >
+                <Typography variant="body1" fontWeight="bold" sx={{ mb: 0.5 }}>
+                  {event.title}
+                </Typography>
+                <Typography variant="body2" display="block">
+                  {event.location} {event.professor ? `• ${event.professor}` : ''}
+                </Typography>
+              </Paper>
+            ) : (
+              <Paper
+                sx={{
+                  p: 1.5,
+                  backgroundColor: theme.palette.background.paper,
+                  borderLeft: `4px solid ${theme.palette.divider}`,
+                  opacity: 0.7
+                }}
+              >
+                <Typography variant="body2" color="textSecondary">
+                  Niciun eveniment programat
+                </Typography>
+              </Paper>
+            )}
+          </Box>
+        );
+      })}
+    </Box>
+  );
+
+  // Mobile view for weekly schedule events
+  const MobileWeeklyScheduleView = () => (
+    <Box sx={{ mt: 2 }}>
+      {timeSlots.map((timeSlot) => (
+        <Box key={timeSlot} sx={{ mb: 2 }}>
+          <Typography 
+            variant="subtitle1" 
+            fontWeight="bold" 
+            sx={{ 
+              mb: 1, 
+              backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
+              p: 1,
+              borderRadius: 1
+            }}
+          >
+            {timeSlot.replace('-', ':00 - ')}:00
+          </Typography>
+          
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {WEEK_DAYS.map((day) => {
+              const event = getEventForSlot(timeSlot, day.value);
+              if (!event) return null;
+              
+              return (
+                <Paper
+                  key={`${timeSlot}-${day.value}`}
+                  sx={{
+                    p: 1.5,
+                    backgroundColor: event.color || theme.palette.primary.light,
+                    borderLeft: `4px solid ${event.color || theme.palette.primary.main}`,
+                    cursor: 'pointer',
+                    '&:hover': {
+                      transform: 'translateY(-2px)',
+                      boxShadow: theme.shadows[2],
+                    }
+                  }}
+                  onClick={(e) => handleEventClick(event, e.currentTarget)}
+                >
+                  <Typography variant="body2" fontWeight="bold" sx={{ mb: 0.5 }}>
+                    {day.label}: {event.title}
+                  </Typography>
+                  <Typography variant="caption" display="block">
+                    {event.location} {event.professor ? `• ${event.professor}` : ''}
+                  </Typography>
+                </Paper>
+              );
+            })}
+          </Box>
+        </Box>
+      ))}
+    </Box>
+  );
 
   return (
-    <Box sx={{ 
-      p: { 
-        xs: 1, // padding mai mic pe mobile
-        sm: 2, // padding mediu pe tablete
-        md: 4  // padding normal pe desktop
-      }, 
-      width: '100%', 
-      maxWidth: '1400px', 
-      margin: '0 auto', 
-      backgroundColor: theme.palette.background.default 
-    }}>
-      {/* Header responsiv */}
-      <Stack 
-        direction={{ xs: 'column', sm: 'row' }} 
-        justifyContent="space-between" 
-        alignItems={{ xs: 'flex-start', sm: 'center' }} 
-        sx={{ mb: { xs: 2, sm: 3 } }}
-      >
-        <Typography 
-          variant={isSmall ? "h5" : "h4"} 
-          sx={{ 
-            fontWeight: "bold",
-            mb: { xs: 1, sm: 0 }
-          }}
-        >
-          Orarul meu
-        </Typography>
-        <Button
-          variant="contained"
-          onClick={() => setOpen(true)}
-          size={isExtraSmall ? "small" : "medium"}
-          sx={{
-            width: { xs: '100%', sm: 'auto' },
-            backgroundColor: theme.palette.primary.main,
-            color: theme.palette.getContrastText(theme.palette.primary.main),
-            '&:hover': {
-              backgroundColor: theme.palette.primary.dark,
-            }
-          }}
-        >
-          Adaugă Eveniment
-        </Button>
-      </Stack>
+    <ContentContainer>
+      {/* Header with actions */}
+      <ScheduleActions onAddEvent={handleOpenModal} />
 
-      {/* Selectoare verticale pe toate dispozitivele */}
+      {/* Vertical selectors on all devices */}
       <Box sx={{ 
         mb: { xs: 2, sm: 3 },
-        '& .MuiFormControl-root': {
-          width: '100%', // Selectoarele ocupă întreaga lățime
-          mb: 1 // Spațiu între selectoare
-        }
+        width: '100%'
       }}>
         <ScheduleSelectors onFiltersChange={handleFiltersChange} />
       </Box>
 
-      {/* Tabel responsiv */}
-      <Box sx={{ 
-        overflowX: "auto",
-        '& ::-webkit-scrollbar': {
-          height: '8px',
-        },
-        '& ::-webkit-scrollbar-thumb': {
-          backgroundColor: theme.palette.grey[300],
-          borderRadius: '4px',
-        }
-      }}>
-        <Grid
-          container
-          sx={{
-            width: "100%",
-            minWidth: {
-              xs: "800px", // Width minim pe mobile
-              md: "100%"   // Width normal pe desktop
-            },
-            border: `1px solid ${theme.palette.divider}`,
-            borderRadius: 2,
-            backgroundColor: theme.palette.background.paper,
-          }}
+      {/* Mobile view mode selector */}
+      {isMobile && (
+        <Box sx={{ mb: 2 }}>
+          <Tabs
+            value={viewMode}
+            onChange={(_, newValue) => handleViewModeChange(newValue)}
+            aria-label="Mod de vizualizare"
+            variant="fullWidth"
+          >
+            <Tab label="Săptămânal" value="weekly" />
+            <Tab label="Zilnic" value="daily" />
+          </Tabs>
+        </Box>
+      )}
+
+      {/* Responsive schedule view */}
+      {isMobile ? (
+        // Mobile view
+        <ResponsivePaper>
+          {viewMode === 'daily' ? <MobileDailyScheduleView /> : <MobileWeeklyScheduleView />}
+        </ResponsivePaper>
+      ) : (
+        // Desktop table view
+        <Box sx={{ 
+          overflowX: "auto",
+          '& ::-webkit-scrollbar': {
+            height: '8px',
+          },
+          '& ::-webkit-scrollbar-thumb': {
+            backgroundColor: theme.palette.grey[300],
+            borderRadius: '4px',
+          }
+        }}
+        role="grid"
+        aria-label="Orar săptămânal"
         >
-          {/* Antet responsiv */}
           <Grid
             container
-            item
-            xs={12}
             sx={{
-              backgroundColor: theme.palette.mode === 'dark' 
-                ? theme.palette.grey[900] 
-                : theme.palette.grey[100],
-              borderBottom: `1px solid ${theme.palette.divider}`,
+              width: "100%",
+              minWidth: {
+                xs: "800px", // Minimum width on mobile
+                md: "100%"   // Normal width on desktop
+              },
+              border: `1px solid ${theme.palette.divider}`,
+              borderRadius: 2,
+              backgroundColor: theme.palette.background.paper,
             }}
           >
-            <Grid 
-              item 
-              xs={2} 
-              sx={{ 
-                p: { xs: 1, sm: 2 },
-                textAlign: "center" 
-              }}
-            >
-              <Typography 
-                variant={isSmall ? "body2" : "subtitle1"} 
-                fontWeight="bold" 
-                sx={{ color: theme.palette.text.primary }}
-              >
-                Ora
-              </Typography>
-            </Grid>
-            {["Luni", "Marți", "Miercuri", "Joi", "Vineri", "Sâmbătă", "Duminică"].map((day) => (
-              <Grid 
-                item 
-                xs={1.4} 
-                key={day} 
-                sx={{ 
-                  p: { xs: 1, sm: 2 },
-                  textAlign: "center" 
-                }}
-              >
-                <Typography 
-                  variant={isSmall ? "body2" : "subtitle1"} 
-                  fontWeight="bold" 
-                  sx={{ color: theme.palette.text.primary }}
-                >
-                  {isExtraSmall ? day.substring(0, 3) : day}
-                </Typography>
-              </Grid>
+            {/* Schedule header component */}
+            <ScheduleHeader />
+            
+            {/* Schedule rows */}
+            {timeSlots.map((timeSlot, rowIndex) => (
+              <ScheduleRow
+                key={timeSlot}
+                timeSlot={timeSlot}
+                rowIndex={rowIndex}
+                totalRows={timeSlots.length}
+                getEventForSlot={getEventForSlot}
+                onEventClick={handleEventClick}
+              />
             ))}
           </Grid>
+        </Box>
+      )}
 
-          {/* Rânduri responsive */}
-          {timeSlots.map((timeSlot, rowIndex) => (
-            <Grid
-              container
-              item
-              xs={12}
-              key={timeSlot}
-              sx={{
-                borderBottom: rowIndex < timeSlots.length - 1 
-                  ? `1px solid ${theme.palette.divider}` 
-                  : "none",
-                '&:hover': {
-                  backgroundColor: theme.palette.action.hover,
-                }
-              }}
-            >
-              <Grid
-                item
-                xs={2}
-                sx={{
-                  p: { xs: 1, sm: 2 },
-                  textAlign: "center",
-                  borderRight: `1px solid ${theme.palette.divider}`,
-                }}
-              >
-                <Typography 
-                  variant={isSmall ? "caption" : "body2"} 
-                  sx={{ color: theme.palette.text.secondary }}
-                >
-                  {timeSlot.replace('-', ':00 - ')}:00
-                </Typography>
-              </Grid>
-              {[...Array(7)].map((_, dayIndex) => {
-                const event = getEventForSlot(timeSlot, dayIndex);
-                return (
-                  <Grid 
-                    item 
-                    xs={1.4} 
-                    key={dayIndex} 
-                    sx={{ 
-                      p: { xs: 0.5, sm: 1 },
-                      borderRight: dayIndex < 6 
-                        ? `1px solid ${theme.palette.divider}` 
-                        : "none" 
-                    }}
-                  >
-                    {event && (
-                      <Box
-                        onClick={(e) => handleEventClick(event, e.currentTarget)}
-                        sx={{
-                          backgroundColor: event.color || theme.palette.primary.light,
-                          borderRadius: 1,
-                          p: { xs: 0.5, sm: 1.5 },
-                          borderLeft: `4px solid ${event.color || theme.palette.primary.main}`,
-                          cursor: 'pointer',
-                          transition: 'all 0.2s ease-in-out',
-                          '&:hover': {
-                            transform: 'translateY(-2px)',
-                            boxShadow: theme.shadows[2],
-                          },
-                        }}
-                      >
-                        <Typography 
-                          variant={isSmall ? "caption" : "body2"} 
-                          fontWeight="bold" 
-                          sx={{ 
-                            color: theme.palette.getContrastText(event.color || theme.palette.primary.main),
-                            display: '-webkit-box',
-                            WebkitLineClamp: isExtraSmall ? 1 : 2,
-                            WebkitBoxOrient: 'vertical',
-                            overflow: 'hidden'
-                          }}
-                        >
-                          {event.title}
-                        </Typography>
-                        {!isExtraSmall && (
-                          <>
-                            <Typography 
-                              variant="caption" 
-                              display="block" 
-                              sx={{ 
-                                mt: 0.5,
-                                color: theme.palette.getContrastText(event.color || theme.palette.primary.main) 
-                              }}
-                            >
-                              {event.location}
-                            </Typography>
-                            {event.professor && (
-                              <Typography 
-                                variant="caption" 
-                                display="block" 
-                                sx={{ 
-                                  mt: 0.5,
-                                  color: theme.palette.getContrastText(event.color || theme.palette.primary.main) 
-                                }}
-                              >
-                                {event.professor}
-                              </Typography>
-                            )}
-                          </>
-                        )}
-                        <Typography
-                          variant="caption"
-                          sx={{
-                            display: isExtraSmall ? 'none' : 'inline-block',
-                            mt: 1,
-                            backgroundColor: event.color || theme.palette.primary.main,
-                            color: theme.palette.getContrastText(event.color || theme.palette.primary.main),
-                            px: 1,
-                            py: 0.25,
-                            borderRadius: 1,
-                            textTransform: 'capitalize'
-                          }}
-                        >
-                          {event.type || 'curs'}
-                        </Typography>
-                      </Box>
-                    )}
-                  </Grid>
-                );
-              })}
-            </Grid>
-          ))}
-        </Grid>
-      </Box>
-
-      <EventModal open={open} handleClose={() => setOpen(false)} />
+      <EventModal open={open} handleClose={handleCloseModal} />
 
       {selectedEvent && (
         <EventEditPopover
@@ -340,8 +321,8 @@ export const ScheduleTable: React.FC = () => {
           onDelete={handleDeleteEvent}
         />
       )}
-    </Box>
+    </ContentContainer>
   );
 };
 
-export default ScheduleTable;
+export default React.memo(ScheduleTable);

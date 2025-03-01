@@ -1,31 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
   DialogActions,
   DialogContent,
   DialogTitle,
   TextField,
-  Button,
   Typography,
   useTheme,
   Grid,
   Paper,
   Alert,
-  CircularProgress,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { fetchBookedSlots, createBookedSlot, clearError, setCustomError } from "../../store/slices/scheduleSlice";
+import { TIME_SLOTS, WEEK_DAYS } from "../../constants/scheduleConstants";
+import { LoadingButton, DangerButton } from "../common/StyledComponents";
+import { handleApiError } from "../../utils/errorHandling";
 
 interface EventModalProps {
   open: boolean;
   handleClose: () => void;
 }
-
-interface TimeSlot {
-  start: string;
-  end: string;
-}
-
 
 const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
   const dispatch = useAppDispatch();
@@ -46,32 +41,13 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
     };
   }, [open, dispatch]);
 
-  const weekDays = [
-    "Luni",
-    "Marți",
-    "Miercuri",
-    "Joi",
-    "Vineri",
-    "Sâmbătă",
-    "Duminică",
-  ];
-
-  const timeSlots: TimeSlot[] = [
-    { start: "08:00", end: "10:00" },
-    { start: "10:00", end: "12:00" },
-    { start: "12:00", end: "14:00" },
-    { start: "14:00", end: "16:00" },
-    { start: "16:00", end: "18:00" },
-    { start: "18:00", end: "20:00" },
-  ];
-
-  const isTimeSlotBooked = (dayIndex: number, timeSlotIndex: number) => {
+  const isTimeSlotBooked = useCallback((dayIndex: number, timeSlotIndex: number) => {
     return bookedSlots.find(
       slot => slot.day === dayIndex && slot.timeSlot === timeSlotIndex
     );
-  };
+  }, [bookedSlots]);
 
-  const handleDaySelect = (index: number) => {
+  const handleDaySelect = useCallback((index: number) => {
     setSelectedDay(index);
     dispatch(clearError());
     if (selectedTimeSlot !== null) {
@@ -80,21 +56,21 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         dispatch(setCustomError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`));
       }
     }
-  };
+  }, [dispatch, isTimeSlotBooked, selectedTimeSlot]);
   
-  const handleTimeSlotSelect = (index: number) => {
+  const handleTimeSlotSelect = useCallback((index: number) => {
     dispatch(clearError());
     if (selectedDay !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, index);
       if (bookedSlot) {
-        dispatch(setCustomError( `Acest interval este deja rezervat de ${bookedSlot.professorName}`));
+        dispatch(setCustomError(`Acest interval este deja rezervat de ${bookedSlot.professorName}`));
         return;
       }
     }
     setSelectedTimeSlot(index);
-  };
+  }, [dispatch, isTimeSlotBooked, selectedDay]);
   
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!eventName.trim()) {
       dispatch(setCustomError("Vă rugăm să introduceți numele orei"));
       return;
@@ -126,16 +102,23 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         
         handleClose();
       } catch (err) {
-        console.error('Failed to save:', err);
-        // Nu mai trebuie să facem dispatch la setCustomError aici
-        // deoarece createBookedSlot.rejected va seta deja eroarea
+        handleApiError(err, 'Eroare la salvarea evenimentului');
       }
     }
-  };
+  }, [eventName, selectedDay, selectedTimeSlot, dispatch, isTimeSlotBooked, handleClose]);
 
   return (
-    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
-      <DialogTitle sx={{ textAlign: "center", pb: 1 }}>
+    <Dialog 
+      open={open} 
+      onClose={handleClose} 
+      fullWidth 
+      maxWidth="sm"
+      aria-labelledby="event-dialog-title"
+    >
+      <DialogTitle 
+        id="event-dialog-title"
+        sx={{ textAlign: "center", pb: 1 }}
+      >
         Adaugă Eveniment
       </DialogTitle>
       <DialogContent
@@ -146,12 +129,6 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           gap: 2,
         }}
       >
-        {isLoading && (
-          <div style={{ display: 'flex', justifyContent: 'center', padding: '20px' }}>
-            <CircularProgress />
-          </div>
-        )}
-
         <TextField
           fullWidth
           label="Numele Orei"
@@ -160,6 +137,10 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           variant="outlined"
           sx={{ mt: 2 }}
           disabled={isLoading}
+          aria-label="Introduceți numele orei"
+          aria-required="true"
+          error={!eventName.trim() && error?.includes("numele orei")}
+          helperText={!eventName.trim() && error?.includes("numele orei") ? "Acest câmp este obligatoriu" : ""}
         />
 
         {error && (
@@ -171,18 +152,18 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
           Selectează Ziua
         </Typography>
-        <Grid container spacing={1}>
-          {weekDays.map((day, index) => (
-            <Grid item xs={12} sm={4} md={3} key={day}>
+        <Grid container spacing={1} role="radiogroup" aria-label="Zile ale săptămânii">
+          {WEEK_DAYS.map((day) => (
+            <Grid item xs={12} sm={4} md={3} key={day.value}>
               <Paper
                 sx={{
                   p: 1,
                   textAlign: "center",
                   cursor: isLoading ? "not-allowed" : "pointer",
-                  bgcolor: selectedDay === index ? "primary.main" : "background.paper",
-                  color: selectedDay === index ? "primary.contrastText" : "text.primary",
+                  bgcolor: selectedDay === day.value ? "primary.main" : "background.paper",
+                  color: selectedDay === day.value ? "primary.contrastText" : "text.primary",
                   '&:hover': {
-                    bgcolor: selectedDay === index 
+                    bgcolor: selectedDay === day.value 
                       ? "primary.dark"
                       : theme.palette.mode === 'dark' 
                         ? 'rgba(255, 255, 255, 0.08)'
@@ -191,10 +172,19 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                   transition: 'background-color 0.3s',
                   opacity: isLoading ? 0.7 : 1,
                 }}
-                elevation={selectedDay === index ? 4 : 1}
-                onClick={() => !isLoading && handleDaySelect(index)}
+                elevation={selectedDay === day.value ? 4 : 1}
+                onClick={() => !isLoading && handleDaySelect(day.value)}
+                role="radio"
+                aria-checked={selectedDay === day.value}
+                aria-label={day.label}
+                tabIndex={isLoading ? -1 : 0}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    !isLoading && handleDaySelect(day.value);
+                  }
+                }}
               >
-                {day}
+                {day.label}
               </Paper>
             </Grid>
           ))}
@@ -203,9 +193,9 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
         <Typography variant="subtitle1" sx={{ mt: 2, mb: 1 }}>
           Selectează Intervalul Orar
         </Typography>
-        <Grid container spacing={1}>
-          {timeSlots.map((slot, index) => {
-            const isBooked = selectedDay !== null && isTimeSlotBooked(selectedDay, index);
+        <Grid container spacing={1} role="radiogroup" aria-label="Intervale orare">
+          {TIME_SLOTS.map((slot, index) => {
+            const isBooked = selectedDay !== null && Boolean(isTimeSlotBooked(selectedDay, index));
             return (
               <Grid item xs={12} sm={6} md={4} key={index}>
                 <Paper
@@ -235,9 +225,19 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                   }}
                   elevation={selectedTimeSlot === index ? 4 : 1}
                   onClick={() => !isLoading && !isBooked && handleTimeSlotSelect(index)}
+                  role="radio"
+                  aria-checked={selectedTimeSlot === index}
+                  aria-label={slot.label}
+                  aria-disabled={isBooked}
+                  tabIndex={isBooked || isLoading ? -1 : 0}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      !isLoading && !isBooked && handleTimeSlotSelect(index);
+                    }
+                  }}
                 >
                   <Typography variant="body1">
-                    {slot.start} - {slot.end}
+                    {slot.label}
                   </Typography>
                   {isBooked && (
                     <Typography variant="caption" sx={{ display: 'block', mt: 0.5 }}>
@@ -252,29 +252,30 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
       </DialogContent>
 
       <DialogActions sx={{ p: 3 }}>
-        <Button 
+        <DangerButton 
           onClick={handleClose} 
-          color="error" 
-          variant="contained"
           disabled={isLoading}
+          aria-label="Anulează adăugarea evenimentului"
         >
           Anulează
-        </Button>
-        <Button
+        </DangerButton>
+        <LoadingButton
           onClick={handleSave}
-          color="primary"
+          loading={isLoading}
           variant="contained"
-          disabled={isLoading || selectedDay === null || selectedTimeSlot === null || error !== null}
+          color="primary"
+          disabled={selectedDay === null || selectedTimeSlot === null || error !== null}
           sx={{
             backgroundColor: theme.palette.mode === "dark" ? "rgb(25,118,210)" : "primary.main",
             color: theme.palette.mode === "dark" ? "white" : "primary.contrastText",
           }}
+          aria-label="Salvează evenimentul"
         >
-          {isLoading ? 'Se salvează...' : 'Salvează'}
-        </Button>
+          Salvează
+        </LoadingButton>
       </DialogActions>
     </Dialog>
   );
 };
 
-export default EventModal;
+export default React.memo(EventModal);
