@@ -52,18 +52,21 @@ export const login = async (req: express.Request, res: express.Response) => {
 
 export const register = async (req: express.Request, res: express.Response) => {
   try {
-    const { email, password, username } = req.body;
+    const { email, password, username, role } = req.body;
 
-    if (!email || !password || !username) {
+    if (!email || !password || !username || !role) {
       return res.status(400).send("Missing fields");
     }
-    const existingEmail = await getUserByEmail(email);
+    if (!["professor", "admin"].includes(role)) {
+      return res.status(400).send("Invalid role");
+    }
 
+    const existingEmail = await getUserByEmail(email);
     if (existingEmail) {
       return res.status(400).send("Email already exists");
     }
-    const existingUser = await getUserByUsername(username);
 
+    const existingUser = await getUserByUsername(username);
     if (existingUser) {
       return res.status(400).send("User already exists");
     }
@@ -72,6 +75,7 @@ export const register = async (req: express.Request, res: express.Response) => {
     const user = await createUser({
       email,
       username,
+      role,
       authentication: {
         salt,
         password: authentication(salt, password),
