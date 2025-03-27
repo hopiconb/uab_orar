@@ -12,10 +12,10 @@ export const mockSpecializations: Specialization[] = [
 ];
 
 export const mockGroups: Group[] = [
-  { id: '1', specializationId: '1', name: 'A1' },
-  { id: '2', specializationId: '1', name: 'A2' },
-  { id: '3', specializationId: '1', name: 'A3' },
-  { id: '4', specializationId: '2', name: 'A1' }
+  { id: '1', specializationId: '1', name: 'A1', yearId: '1' },
+  { id: '2', specializationId: '1', name: 'A2', yearId: '2' },
+  { id: '3', specializationId: '1', name: 'A3', yearId: '3' },
+  { id: '4', specializationId: '2', name: 'A1', yearId: '4' }
 ];
 
 export const mockYears: Year[] = [

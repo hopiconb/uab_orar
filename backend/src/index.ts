@@ -5,10 +5,12 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
+import dotenv from 'dotenv';
 
 import router from "./router";
 
 const app = express();
+dotenv.config();
 
 app.use(
   cors({
@@ -26,7 +28,8 @@ server.listen(8080, () => {
   console.log("Server started on http://localhost:8080/");
 });
 
-const mongoURI = "mongodb://127.0.0.1:27017/orar";
+// const mongoURI = "mongodb://127.0.0.1:27017/orar";
+const mongoURI = "mongodb://mongo:27017/orar"
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURI);

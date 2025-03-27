@@ -67,9 +67,9 @@ const demoTheme = createTheme({
 });
 
 function DemoPageContent({ pathname }: { pathname: string }) {
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
-  
+  // const theme = useTheme();
+  // const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+
   useEffect(() => {
     if (pathname === "/hartaSalilor") {
       window.open("https://uab.ro/media/Sali%20UAB%202025%20RO%20-%20update%2010.02.2025_1XRXDT3.pdf", "_blank");

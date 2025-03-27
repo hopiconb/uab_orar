@@ -12,13 +12,13 @@ export interface Specialization {
 export interface Year {
   id: string;
   specializationId: string;
-  number: number;  
+  number: number;
 }
 
 export interface Group {
   id: string;
   specializationId: string;
-  yearId: string;  
+  yearId: string;
   name: string;
   // year: number;
 }
@@ -26,7 +26,7 @@ export interface Group {
 export interface ScheduleFilters {
   facultyId: string;
   specializationId: string;
-  yearId: string;  
+  yearId: string;
   groupId: string;
   year: number;
 }

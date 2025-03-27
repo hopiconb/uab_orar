@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-expressions */
 import React, { useState, useEffect, useCallback } from "react";
 import {
   Dialog,
@@ -14,12 +15,11 @@ import {
   InputLabel,
   Select,
   MenuItem,
-  Box,
 } from "@mui/material";
 import { useAppDispatch, useAppSelector } from "../../hooks/redux";
 import { fetchBookedSlots, createBookedSlot, clearError, setCustomError } from "../../store/slices/scheduleSlice";
 import { TIME_SLOTS, WEEK_DAYS, EVENT_TYPES } from "../../constants/scheduleConstants";
-import { LoadingButton, DangerButton, PrimaryButton, SecondaryButton } from "../common/StyledComponents";
+import { PrimaryButton, SecondaryButton } from "../common/StyledComponents";
 import { handleApiError } from "../../utils/errorHandling";
 import { mockClassrooms } from "../../mocks/classrooms.mocks";
 
@@ -31,7 +31,7 @@ interface EventModalProps {
 const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
   const dispatch = useAppDispatch();
   const { bookedSlots, isLoading, error } = useAppSelector((state) => state.schedule);
-  
+
   const [eventName, setEventName] = useState<string>("");
   const [selectedDay, setSelectedDay] = useState<number | null>(null);
   const [selectedTimeSlot, setSelectedTimeSlot] = useState<number | null>(null);
@@ -74,7 +74,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
       }
     }
   }, [dispatch, isTimeSlotBooked, selectedTimeSlot]);
-  
+
   const handleTimeSlotSelect = useCallback((index: number) => {
     dispatch(clearError());
     if (selectedDay !== null) {
@@ -86,18 +86,18 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
     }
     setSelectedTimeSlot(index);
   }, [dispatch, isTimeSlotBooked, selectedDay]);
-  
+
   const handleSave = useCallback(async () => {
     if (!eventName.trim()) {
       dispatch(setCustomError("Vă rugăm să introduceți numele orei"));
       return;
     }
-  
+
     if (selectedDay === null) {
       dispatch(setCustomError("Vă rugăm să selectați o zi"));
       return;
     }
-  
+
     if (selectedTimeSlot === null) {
       dispatch(setCustomError("Vă rugăm să selectați un interval orar"));
       return;
@@ -112,14 +112,14 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
       dispatch(setCustomError("Vă rugăm să selectați sala"));
       return;
     }
-  
+
     if (selectedDay !== null && selectedTimeSlot !== null) {
       const bookedSlot = isTimeSlotBooked(selectedDay, selectedTimeSlot);
       if (bookedSlot) {
         dispatch(setCustomError("Acest interval orar este deja rezervat"));
         return;
       }
-  
+
       try {
         await dispatch(createBookedSlot({
           professorName: eventName,
@@ -129,7 +129,7 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
           // eventType: eventType,
           // roomId: selectedRoom,
         })).unwrap();
-        
+
         handleClose();
       } catch (err) {
         handleApiError(err, 'Eroare la salvarea evenimentului');
@@ -138,14 +138,14 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
   }, [eventName, selectedDay, selectedTimeSlot, eventType, selectedRoom, dispatch, isTimeSlotBooked, handleClose]);
 
   return (
-    <Dialog 
-      open={open} 
-      onClose={handleClose} 
-      fullWidth 
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      fullWidth
       maxWidth="sm"
       aria-labelledby="event-dialog-title"
     >
-      <DialogTitle 
+      <DialogTitle
         id="event-dialog-title"
         sx={{ textAlign: "center", pb: 1 }}
       >
@@ -227,9 +227,9 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                   bgcolor: selectedDay === day.value ? "primary.main" : "background.paper",
                   color: selectedDay === day.value ? "primary.contrastText" : "text.primary",
                   '&:hover': {
-                    bgcolor: selectedDay === day.value 
+                    bgcolor: selectedDay === day.value
                       ? "primary.dark"
-                      : theme.palette.mode === 'dark' 
+                      : theme.palette.mode === 'dark'
                         ? 'rgba(255, 255, 255, 0.08)'
                         : 'rgba(0, 0, 0, 0.04)',
                   },
@@ -267,20 +267,20 @@ const EventModal: React.FC<EventModalProps> = ({ open, handleClose }) => {
                     p: 1,
                     textAlign: "center",
                     cursor: isLoading || isBooked ? "not-allowed" : "pointer",
-                    bgcolor: selectedTimeSlot === index 
-                      ? "primary.main" 
-                      : isBooked 
+                    bgcolor: selectedTimeSlot === index
+                      ? "primary.main"
+                      : isBooked
                         ? "error.light"
                         : "background.paper",
                     color: selectedTimeSlot === index || isBooked
                       ? "primary.contrastText"
                       : "text.primary",
                     '&:hover': {
-                      bgcolor: isBooked 
-                        ? "error.light" 
-                        : selectedTimeSlot === index 
+                      bgcolor: isBooked
+                        ? "error.light"
+                        : selectedTimeSlot === index
                           ? "primary.dark"
-                          : theme.palette.mode === 'dark' 
+                          : theme.palette.mode === 'dark'
                             ? 'rgba(255, 255, 255, 0.08)'
                             : 'rgba(0, 0, 0, 0.04)',
                     },

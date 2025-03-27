@@ -19,11 +19,10 @@ export const ScheduleTable: React.FC = () => {
   const [selectedEvent, setSelectedEvent] = useState<ClassesScheduleEvent | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const [viewMode, setViewMode] = useState<'daily' | 'weekly'>('weekly');
-  const [selectedDay, setSelectedDay] = useState<number>(0); 
+  const [selectedDay, setSelectedDay] = useState<number>(0);
   const theme = useTheme();
-  
-  const isExtraSmall = useMediaQuery(theme.breakpoints.down("sm")); 
-  const isMobile = useMediaQuery(theme.breakpoints.down("md")); 
+
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   const [activeFilters, setActiveFilters] = useState<ScheduleFilters>({
     facultyId: '',
@@ -33,7 +32,7 @@ export const ScheduleTable: React.FC = () => {
     year: 0
   });
 
-  const timeSlots = useMemo(() => 
+  const timeSlots = useMemo(() =>
     TIME_SLOTS.map(slot => slot.value),
     []
   );
@@ -80,15 +79,15 @@ export const ScheduleTable: React.FC = () => {
   }, []);
 
   const handleSaveEvent = useCallback((updatedEvent: ClassesScheduleEvent) => {
-    setScheduleEvents(prevEvents => 
-      prevEvents.map(event => 
+    setScheduleEvents(prevEvents =>
+      prevEvents.map(event =>
         event.id === updatedEvent.id ? updatedEvent : event
       )
     );
   }, []);
 
   const handleDeleteEvent = useCallback((eventId: string) => {
-    setScheduleEvents(prevEvents => 
+    setScheduleEvents(prevEvents =>
       prevEvents.filter(event => event.id !== eventId)
     );
   }, []);
@@ -115,16 +114,16 @@ export const ScheduleTable: React.FC = () => {
           <Tab key={day.value} label={day.label} value={day.value} />
         ))}
       </Tabs>
-      
+
       {timeSlots.map((timeSlot) => {
         const event = getEventForSlot(timeSlot, selectedDay);
         return (
           <Box key={timeSlot} sx={{ mb: 2 }}>
-            <Typography 
-              variant="subtitle1" 
-              fontWeight="bold" 
-              sx={{ 
-                mb: 1, 
+            <Typography
+              variant="subtitle1"
+              fontWeight="bold"
+              sx={{
+                mb: 1,
                 backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
                 p: 1,
                 borderRadius: 1
@@ -132,7 +131,7 @@ export const ScheduleTable: React.FC = () => {
             >
               {timeSlot.replace('-', ':00 - ')}:00
             </Typography>
-            
+
             {event ? (
               <Paper
                 sx={{
@@ -178,11 +177,11 @@ export const ScheduleTable: React.FC = () => {
     <Box sx={{ mt: 2 }}>
       {timeSlots.map((timeSlot) => (
         <Box key={timeSlot} sx={{ mb: 2 }}>
-          <Typography 
-            variant="subtitle1" 
-            fontWeight="bold" 
-            sx={{ 
-              mb: 1, 
+          <Typography
+            variant="subtitle1"
+            fontWeight="bold"
+            sx={{
+              mb: 1,
               backgroundColor: theme.palette.mode === 'dark' ? theme.palette.grey[800] : theme.palette.grey[200],
               p: 1,
               borderRadius: 1
@@ -190,12 +189,12 @@ export const ScheduleTable: React.FC = () => {
           >
             {timeSlot.replace('-', ':00 - ')}:00
           </Typography>
-          
+
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
             {WEEK_DAYS.map((day) => {
               const event = getEventForSlot(timeSlot, day.value);
               if (!event) return null;
-              
+
               return (
                 <Paper
                   key={`${timeSlot}-${day.value}`}
@@ -230,7 +229,7 @@ export const ScheduleTable: React.FC = () => {
     <ContentContainer>
       <ScheduleActions onAddEvent={handleOpenModal} />
 
-      <Box sx={{ 
+      <Box sx={{
         mb: { xs: 2, sm: 3 },
         width: '100%'
       }}>
@@ -256,7 +255,7 @@ export const ScheduleTable: React.FC = () => {
           {viewMode === 'daily' ? <MobileDailyScheduleView /> : <MobileWeeklyScheduleView />}
         </ResponsivePaper>
       ) : (
-        <Box sx={{ 
+        <Box sx={{
           overflowX: "auto",
           '& ::-webkit-scrollbar': {
             height: '8px',
@@ -266,16 +265,16 @@ export const ScheduleTable: React.FC = () => {
             borderRadius: '4px',
           }
         }}
-        role="grid"
-        aria-label="Orar săptămânal"
+          role="grid"
+          aria-label="Orar săptămânal"
         >
           <Grid
             container
             sx={{
               width: "100%",
               minWidth: {
-                xs: "800px", 
-                md: "100%"   
+                xs: "800px",
+                md: "100%"
               },
               border: `1px solid ${theme.palette.divider}`,
               borderRadius: 2,
@@ -283,7 +282,7 @@ export const ScheduleTable: React.FC = () => {
             }}
           >
             <ScheduleHeader />
-            
+
             {timeSlots.map((timeSlot, rowIndex) => (
               <ScheduleRow
                 key={timeSlot}

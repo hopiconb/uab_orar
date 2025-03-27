@@ -3,11 +3,8 @@ import {
   TextField,
   CircularProgress,
   Typography,
-  Dialog,
-  FormControl,
-  styled,
 } from "@mui/material";
-import { FormContainer, SubmitButton, LogoContainer, Logo } from "./FormStyles";
+import { SubmitButton, LogoContainer, Logo } from "./FormStyles";
 import submitIcon from "../../assets/icon.svg";
 import logo from "../../assets/logo.svg";
 import { FormInputs } from "./interface";
@@ -20,7 +17,6 @@ export default function Form() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<FormInputs>();
 
   const onSubmit = async (data: FieldValues) => {
@@ -35,7 +31,7 @@ export default function Form() {
       <LogoContainer>
         <Logo src={logo} alt="University Logo" />
       </LogoContainer>
-      <FormContainer component={"form"} onSubmit={handleSubmit(onSubmit)}>
+      <form onSubmit={handleSubmit(onSubmit)}>
         <Typography
           variant="h5"
           color="textPrimary"
@@ -103,7 +99,7 @@ export default function Form() {
         >
           {isSubmitting ? "Submitting..." : "Intra in cont"}
         </SubmitButton>
-      </FormContainer>
+      </form>
     </>
   );
 }

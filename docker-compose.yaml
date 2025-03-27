@@ -1,0 +1,64 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: "mongodb://mongo:27017/orar"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    working_dir: /app
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+
+  backend-dev:
+    build: ./backend
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mongo
+    environment:
+      MONGO_URI: "mongodb://mongo:27017/orar"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run start
+
+  frontend-dev:
+    build: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend-dev
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    working_dir: /app
+    command: npm run dev # runs the dev server (HMR)
+    environment:
+      - NODE_ENV=development
+      - VITE_PORT=3000
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+
+volumes:
+  mongo-data:
+

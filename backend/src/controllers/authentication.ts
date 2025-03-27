@@ -1,11 +1,10 @@
 import express from "express";
+import jwt from "jsonwebtoken";
+import { getUserByEmail, createUser } from "../db/users";
+import { hashPassword, comparePassword } from "../helpers";
 
-import { getUserByEmail, createUser, getUserByUsername } from "../db/users";
-import { random, authentication } from "../helpers";
-import { send } from "process";
 
 export const login = async (req: express.Request, res: express.Response) => {
-  const flag = true;
   try {
     const { email, password } = req.body;
 
@@ -13,34 +12,35 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(400).send("Missing fields");
     }
 
-    const user = await getUserByEmail(email).select(
-      "+authentication.salt +authentication.password"
-    );
+    const user = await getUserByEmail(email);
+    console.log("getUserByEmail Login: ", user);
+    console.log("getUserByEmail Password: ", user?.authentication);
 
-    if (!user) {
+    if (!user.email) {
       return res.status(404).send("Email not found");
     }
 
-    const expectedHash = authentication(user.authentication.salt, password);
-
-    if (user.authentication.password !== expectedHash) {
+    const isPasswordValid = comparePassword(password, user.authentication.password);
+    if (!isPasswordValid) {
       return res.status(401).send("Invalid credentials");
     }
 
-    const salt = random();
-    user.authentication.sessionToken = authentication(
-      salt,
-      user._id.toString()
-    );
+    console.log("JWT_SECRET: ", process.env.JWT_SECRET_KEY);
+
+    const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+
+    user.authentication.sessionToken = sessionToken;
     await user.save();
 
-    res.cookie("sessionToken", user.authentication.sessionToken, {
-      domain: "localhost",
-      path: "/",
+    res.cookie("sessionToken", sessionToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
-    return res.json(flag);
+
+    return res.json({ success: true, token: sessionToken });
   } catch (error) {
-    console.log(error);
+    console.error(error);
     return res.status(500).send("Internal server error");
   }
 };
@@ -52,26 +52,30 @@ export const register = async (req: express.Request, res: express.Response) => {
     if (!email || !password || !username) {
       return res.status(400).send("Missing fields");
     }
-    const existingEmail = await getUserByEmail(email);
 
-    if (existingEmail) {
-      return res.status(400).send("Email already exists");
-    }
-    const existingUser = await getUserByUsername(username);
+    // const existingEmail = await getUserByEmail(email);
+    //
+    // if (existingEmail) {
+    //   return res.status(400).send("Email already exists");
+    // }
+    // const existingUser = await getUserByUsername(username);
+    //
+    // if (existingUser) {
+    //   return res.status(400).send("User already exists");
+    // }
 
-    if (existingUser) {
-      return res.status(400).send("User already exists");
-    }
 
-    const salt = random();
+    const hashedPassword = hashPassword(password);
+
     const user = await createUser({
       email,
       username,
       authentication: {
-        salt,
-        password: authentication(salt, password),
+        password: hashedPassword,
       },
     });
+
+    console.log('USER: ', user);
     return res.status(200).json(user).end();
   } catch (error) {
     console.log(error);
