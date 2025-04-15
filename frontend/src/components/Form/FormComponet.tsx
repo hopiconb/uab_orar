@@ -65,10 +65,10 @@ export default function Form() {
         <TextField
           {...register("password", {
             required: "Password is required",
-            minLength: {
-              value: 10,
-              message: "Password must be at least 10 characters",
-            },
+            // minLength: {
+            //   value: 10,
+            //   message: "Password must be at least 10 characters",
+            // },
           })}
           label="Parola"
           type="password"

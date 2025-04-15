@@ -25,8 +25,6 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(401).send("Invalid credentials");
     }
 
-    console.log("JWT_SECRET: ", process.env.JWT_SECRET_KEY);
-
     const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
 
     user.authentication.sessionToken = sessionToken;
@@ -35,7 +33,7 @@ export const login = async (req: express.Request, res: express.Response) => {
     res.cookie("sessionToken", sessionToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
     return res.json({ success: true, token: sessionToken });

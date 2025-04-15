@@ -7,6 +7,7 @@ export const loginUser = async (data: FieldValues) => {
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         email: data.email,
         password: data.password,
