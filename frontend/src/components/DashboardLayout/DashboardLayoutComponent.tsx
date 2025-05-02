@@ -1,5 +1,4 @@
 import Box from "@mui/material/Box";
-import Typography from "@mui/material/Typography";
 import { createTheme } from "@mui/material/styles";
 import DashboardIcon from "@mui/icons-material/Dashboard";
 import MapIcon from "@mui/icons-material/Map";
@@ -13,7 +12,6 @@ import logo from "../../assets/logo.svg";
 import { ScheduleTable } from "../ClassesSchedule/ScheduleTableComponent";
 import SidebarFooterAccount from "../AccountComponent/CustomAccountComponent";
 import { ClassroomSchedule } from "../ClassroomSchedule/ClassroomScheduleComponent";
-import { PDFViewerContainer } from "../common/StyledComponents";
 
 const NAVIGATION: Navigation = [
   {
@@ -57,8 +55,8 @@ const demoTheme = createTheme({
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          '@media (max-width: 600px)': {
-            width: '240px',
+          "@media (max-width: 600px)": {
+            width: "240px",
           },
         },
       },
@@ -72,7 +70,13 @@ function DemoPageContent({ pathname }: { pathname: string }) {
 
   useEffect(() => {
     if (pathname === "/hartaSalilor") {
-      window.open("https://uab.ro/media/Sali%20UAB%202025%20RO%20-%20update%2010.02.2025_1XRXDT3.pdf", "_blank");
+      window.open(
+        "https://uab.ro/media/Sali%20UAB%202025%20RO%20-%20update%2010.02.2025_1XRXDT3.pdf",
+        "_blank"
+      );
+    }
+    if (pathname === "/solaris") {
+      window.open("https://smartportal.uab.ro");
     }
   }, [pathname]);
 
@@ -90,19 +94,7 @@ function DemoPageContent({ pathname }: { pathname: string }) {
         overflowX: "hidden",
       }}
     >
-      {pathname === "/dashboard" ? (
-        <ScheduleTable />
-      ) : pathname === "/orarSali" ? (
-        <ClassroomSchedule />
-      ) : pathname === "/solaris" ? (
-        <PDFViewerContainer>
-          <Typography variant="body1" sx={{ p: 2, textAlign: 'center' }}>
-            PDF viewer will be implemented here
-          </Typography>
-        </PDFViewerContainer>
-      ) : (
-        <Typography>Dashboard content for {pathname}</Typography>
-      )}
+      {pathname === "/orarSali" ? <ClassroomSchedule /> : <ScheduleTable />}
     </Box>
   );
 }
@@ -110,7 +102,14 @@ function DemoPageContent({ pathname }: { pathname: string }) {
 export default function DashboardLayoutComponent() {
   const router = useDemoRouter("/dashboard");
   const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
+
+  useEffect(() => {}, []);
+
+  // console.log("Token: ", token);
+  // if (!token) {
+  //   return <Navigate to="/" replace />
+  // }
 
   return (
     <AppProvider
@@ -142,12 +141,12 @@ export default function DashboardLayoutComponent() {
           sidebarFooter: (props) => <SidebarFooterAccount {...props} />,
         }}
         sx={{
-          '& .MuiToolbar-root': {
-            minHeight: { xs: '56px', sm: '64px' },
+          "& .MuiToolbar-root": {
+            minHeight: { xs: "56px", sm: "64px" },
             px: { xs: 1, sm: 2 },
           },
-          '& .MuiDrawer-paper': {
-            width: { xs: '240px', sm: '280px' },
+          "& .MuiDrawer-paper": {
+            width: { xs: "240px", sm: "280px" },
           },
         }}
       >

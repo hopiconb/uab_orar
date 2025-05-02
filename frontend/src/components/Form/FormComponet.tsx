@@ -1,9 +1,5 @@
 import { useForm, type FieldValues } from "react-hook-form";
-import {
-  TextField,
-  CircularProgress,
-  Typography,
-} from "@mui/material";
+import { Box, TextField, CircularProgress, Typography } from "@mui/material";
 import { SubmitButton, LogoContainer, Logo } from "./FormStyles";
 import submitIcon from "../../assets/icon.svg";
 import logo from "../../assets/logo.svg";
@@ -22,16 +18,28 @@ export default function Form() {
   const onSubmit = async (data: FieldValues) => {
     loginUser(data).then((result) => {
       if (result) {
-        navigate("/home"); //TODO zustand
+        navigate("/");
       }
     });
   };
   return (
-    <>
+    <Box
+      sx={{
+        height: "90vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "2rem",
+      }}
+    >
       <LogoContainer>
         <Logo src={logo} alt="University Logo" />
       </LogoContainer>
-      <form onSubmit={handleSubmit(onSubmit)}>
+      <form
+        style={{ width: "fit-content", margin: "0 auto", padding: "0 1rem" }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Typography
           variant="h5"
           color="textPrimary"
@@ -100,6 +108,6 @@ export default function Form() {
           {isSubmitting ? "Submitting..." : "Intra in cont"}
         </SubmitButton>
       </form>
-    </>
+    </Box>
   );
 }

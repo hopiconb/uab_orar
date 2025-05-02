@@ -1,10 +1,16 @@
 import mongoose from "mongoose";
 
+export interface IUserJwtPayload {
+  userId: string;
+  iat: number;
+  exp: number;
+}
+
 const userSchema = new mongoose.Schema({
   username: { type: String, required: true, unique: true },
   email: { type: String, required: true, unique: true },
   authentication: {
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: true },
     sessionToken: { type: String, select: false },
   },
 });
@@ -12,7 +18,8 @@ const userSchema = new mongoose.Schema({
 export const UserModel = mongoose.model("User", userSchema);
 
 export const getUsers = () => UserModel.find({});
-export const getUserByEmail = (email: string) => UserModel.findOne({ email: email });
+export const getUserByEmail = (email: string) =>
+  UserModel.findOne({ email: email });
 export const getUserByUsername = (username: string) =>
   UserModel.findOne({ username });
 export const getUserBySessionToken = (sessionToken: string) =>

@@ -58,7 +58,9 @@ services:
       - "27017:27017"
     volumes:
       - mongo-data:/data/db
+      - ./mongo-init:/docker-entrypoint-initdb.d:ro # seed runs ONCE on first init
+    environment:
+      MONGO_INITDB_DATABASE: orar
 
 volumes:
   mongo-data:
-

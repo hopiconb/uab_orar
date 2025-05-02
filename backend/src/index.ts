@@ -5,7 +5,7 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 
 import router from "./router";
 
@@ -14,7 +14,7 @@ dotenv.config();
 
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: process.env.CORS_ORIGIN_PROD || "http://localhost:3000",
     credentials: true,
   })
 );
@@ -30,7 +30,8 @@ server.listen(8080, () => {
 });
 
 // const mongoURI = "mongodb://127.0.0.1:27017/orar";
-const mongoURI = "mongodb://mongo:27017/orar"
+// const mongoURI = "mongodb://mongo:27017/orar"
+const mongoURI = process.env.MONGODB_URI_CONNECTION_STRING;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURI);
