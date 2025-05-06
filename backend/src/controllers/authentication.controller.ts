@@ -1,8 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
-import { getUserByEmail, createUser } from "../db/users";
+import { getUserByEmail, createUser } from "../models/user.model";
 import { hashPassword, comparePassword } from "../helpers";
-
 
 export const login = async (req: express.Request, res: express.Response) => {
   try {
@@ -20,12 +19,19 @@ export const login = async (req: express.Request, res: express.Response) => {
       return res.status(404).send("Email not found");
     }
 
-    const isPasswordValid = comparePassword(password, user.authentication.password);
+    const isPasswordValid = comparePassword(
+      password,
+      user.authentication.password
+    );
     if (!isPasswordValid) {
       return res.status(401).send("Invalid credentials");
     }
 
-    const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, { expiresIn: "1h" });
+    const sessionToken = jwt.sign(
+      { userId: user._id },
+      process.env.JWT_SECRET_KEY,
+      { expiresIn: "1h" }
+    );
 
     user.authentication.sessionToken = sessionToken;
     await user.save();
@@ -62,7 +68,6 @@ export const register = async (req: express.Request, res: express.Response) => {
     //   return res.status(400).send("User already exists");
     // }
 
-
     const hashedPassword = hashPassword(password);
 
     const user = await createUser({
@@ -73,7 +78,7 @@ export const register = async (req: express.Request, res: express.Response) => {
       },
     });
 
-    console.log('USER: ', user);
+    console.log("USER: ", user);
     return res.status(200).json(user).end();
   } catch (error) {
     console.log(error);

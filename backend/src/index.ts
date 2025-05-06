@@ -29,16 +29,12 @@ server.listen(8080, () => {
   console.log("Server started on http://localhost:8080/");
 });
 
-// const mongoURI = "mongodb://127.0.0.1:27017/orar";
-// const mongoURI = "mongodb://mongo:27017/orar"
 const mongoURI = process.env.MONGODB_URI_CONNECTION_STRING;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURI);
 mongoose.connection.on("error", (err) => {
-  console.log(
-    "%s MongoDB connection error. Please make sure MongoDB is running."
-  );
+  console.log("MongoDB connection error. Please make sure MongoDB is running.");
 });
 
-app.use("/", router());
+app.use("/api", router);

@@ -6,14 +6,7 @@ import {
   deleteUser as deleteUserFromDb,
   getUserById,
   IUserJwtPayload,
-} from "../db/users";
-
-export const getTestUser = async (
-  _: express.Request,
-  res: express.Response
-) => {
-  return res.status(200).json("TEST BACKEND API");
-};
+} from "../models/user.model";
 
 export const getMyUserData = async (
   req: express.Request,
