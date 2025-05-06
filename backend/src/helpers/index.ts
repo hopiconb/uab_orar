@@ -1,9 +1,10 @@
-import crypto from 'crypto';
+import bcrypt from "bcryptjs";
 
-const SECRET = 'mysecretkey';
-
-export const random = () => crypto.randomBytes(128).toString('base64');
-export const authentication = (salt: string, password: string) => {
-    return crypto.createHmac('sha256', [salt, password].join("/")).update(SECRET).digest('hex');
+export const hashPassword = (password: string) => {
+  const salt = bcrypt.genSaltSync(10);
+  return bcrypt.hashSync(password, salt);
 };
 
+export const comparePassword = (password: string, hashedPassword: string) => {
+  return bcrypt.compareSync(password, hashedPassword);
+};

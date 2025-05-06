@@ -1,12 +1,11 @@
 import React from 'react';
 import { styled } from '@mui/system';
-import { 
-  Box, 
-  Button, 
-  Paper, 
-  Typography, 
-  Card, 
-  CardContent,
+import {
+  Box,
+  Button,
+  Paper,
+  Typography,
+  Card,
   FormControl,
   CircularProgress
 } from '@mui/material';
@@ -121,7 +120,7 @@ export const FormWrapper = styled(FormControl)(({ theme }) => ({
 interface LoadingButtonProps {
   loading: boolean;
   children: React.ReactNode;
-  [key: string]: any; 
+  [key: string]: unknown;
 }
 
 export const LoadingButton = React.memo(({ loading, children, ...props }: LoadingButtonProps) => (

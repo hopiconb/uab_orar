@@ -5,13 +5,16 @@ import cookieParser from "cookie-parser";
 import compression from "compression";
 import cors from "cors";
 import mongoose from "mongoose";
+import dotenv from "dotenv";
 
 import router from "./router";
 
 const app = express();
+dotenv.config();
 
 app.use(
   cors({
+    origin: process.env.CORS_ORIGIN_PROD || "http://localhost:3000",
     credentials: true,
   })
 );
@@ -26,14 +29,12 @@ server.listen(8080, () => {
   console.log("Server started on http://localhost:8080/");
 });
 
-const mongoURI = "mongodb://127.0.0.1:27017/orar";
+const mongoURI = process.env.MONGODB_URI_CONNECTION_STRING;
 
 mongoose.Promise = Promise;
 mongoose.connect(mongoURI);
 mongoose.connection.on("error", (err) => {
-  console.log(
-    "%s MongoDB connection error. Please make sure MongoDB is running."
-  );
+  console.log("MongoDB connection error. Please make sure MongoDB is running.");
 });
 
-app.use("/", router());
+app.use("/api", router);

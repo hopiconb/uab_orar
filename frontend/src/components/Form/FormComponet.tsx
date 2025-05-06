@@ -1,13 +1,6 @@
 import { useForm, type FieldValues } from "react-hook-form";
-import {
-  TextField,
-  CircularProgress,
-  Typography,
-  Dialog,
-  FormControl,
-  styled,
-} from "@mui/material";
-import { FormContainer, SubmitButton, LogoContainer, Logo } from "./FormStyles";
+import { Box, TextField, CircularProgress, Typography } from "@mui/material";
+import { SubmitButton, LogoContainer, Logo } from "./FormStyles";
 import submitIcon from "../../assets/icon.svg";
 import logo from "../../assets/logo.svg";
 import { FormInputs } from "./interface";
@@ -20,22 +13,33 @@ export default function Form() {
     register,
     handleSubmit,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<FormInputs>();
 
   const onSubmit = async (data: FieldValues) => {
     loginUser(data).then((result) => {
       if (result) {
-        navigate("/home"); //TODO zustand
+        navigate("/");
       }
     });
   };
   return (
-    <>
+    <Box
+      sx={{
+        height: "90vh",
+        display: "flex",
+        flexDirection: "column",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: "2rem",
+      }}
+    >
       <LogoContainer>
         <Logo src={logo} alt="University Logo" />
       </LogoContainer>
-      <FormContainer component={"form"} onSubmit={handleSubmit(onSubmit)}>
+      <form
+        style={{ width: "fit-content", margin: "0 auto", padding: "0 1rem" }}
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <Typography
           variant="h5"
           color="textPrimary"
@@ -69,10 +73,10 @@ export default function Form() {
         <TextField
           {...register("password", {
             required: "Password is required",
-            minLength: {
-              value: 10,
-              message: "Password must be at least 10 characters",
-            },
+            // minLength: {
+            //   value: 10,
+            //   message: "Password must be at least 10 characters",
+            // },
           })}
           label="Parola"
           type="password"
@@ -103,7 +107,7 @@ export default function Form() {
         >
           {isSubmitting ? "Submitting..." : "Intra in cont"}
         </SubmitButton>
-      </FormContainer>
-    </>
+      </form>
+    </Box>
   );
 }

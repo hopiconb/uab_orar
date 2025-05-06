@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { 
-  FormControl, 
-  InputLabel, 
-  Select, 
-  MenuItem, 
+import {
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
   Stack,
   SelectChangeEvent,
   useTheme,
@@ -39,7 +39,7 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
     setSelectedSpecialization('');
     setSelectedYear('');
     setSelectedGroup('');
-    
+
     onFiltersChange({
       facultyId,
       specializationId: '',
@@ -54,7 +54,7 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
     setSelectedSpecialization(specializationId);
     setSelectedYear('');
     setSelectedGroup('');
-    
+
     onFiltersChange({
       facultyId: selectedFaculty,
       specializationId,
@@ -68,9 +68,9 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
     const yearId = event.target.value;
     setSelectedYear(yearId);
     setSelectedGroup('');
-    
+
     const selectedYearData = mockYears.find(y => y.id === yearId);
-    
+
     onFiltersChange({
       facultyId: selectedFaculty,
       specializationId: selectedSpecialization,
@@ -83,9 +83,9 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
   const handleGroupChange = (event: SelectChangeEvent<string>) => {
     const groupId = event.target.value;
     setSelectedGroup(groupId);
-    
+
     const selectedYearData = mockYears.find(y => y.id === selectedYear);
-    
+
     onFiltersChange({
       facultyId: selectedFaculty,
       specializationId: selectedSpecialization,
@@ -97,10 +97,10 @@ export const ScheduleSelectors: React.FC<ScheduleFiltersProps> = ({ onFiltersCha
 
   return (
     <Box sx={{ width: '100%' }}>
-      <Stack 
-        direction={isMobile ? "column" : "row"} 
-        spacing={isMobile ? 1 : 2} 
-        sx={{ 
+      <Stack
+        direction={isMobile ? "column" : "row"}
+        spacing={isMobile ? 1 : 2}
+        sx={{
           width: '100%',
           maxWidth: isMobile ? '100%' : '800px'
         }}

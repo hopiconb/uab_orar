@@ -2,11 +2,12 @@ import { FieldValues } from "react-hook-form";
 
 export const loginUser = async (data: FieldValues) => {
   try {
-    const response = await fetch("http://localhost:8080/login", {
+    const response = await fetch("http://localhost:8080/api/auth/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
+      credentials: "include",
       body: JSON.stringify({
         email: data.email,
         password: data.password,
