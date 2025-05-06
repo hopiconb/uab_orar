@@ -5,12 +5,14 @@ import {
   getGroupById,
   updateGroup,
   deleteGroup,
+  getAllGroupsFromYear,
 } from "../controllers/group.controller";
 
 const groupRoutes = express.Router();
 
 groupRoutes.post("/", createGroup);
 groupRoutes.get("/", getAllGroups);
+groupRoutes.get("/:degreeId/:year", getAllGroupsFromYear);
 groupRoutes.get("/:id", getGroupById);
 groupRoutes.put("/:id", updateGroup);
 groupRoutes.delete("/:id", deleteGroup);
