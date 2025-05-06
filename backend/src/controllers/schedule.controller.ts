@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import { Schedule } from "../models/schedule.model";
 import mongoose from "mongoose";
 
-// Create schedule with time conflict check
 export const createSchedule = async (req: Request, res: Response) => {
   try {
     const { room, dayOfWeek, startTime, endTime } = req.body;
@@ -27,7 +26,6 @@ export const createSchedule = async (req: Request, res: Response) => {
   }
 };
 
-// Read all schedules
 export const getAllSchedules = async (req: Request, res: Response) => {
   const schedules = await Schedule.find()
     .populate({
@@ -49,7 +47,6 @@ export const getAllSchedules = async (req: Request, res: Response) => {
   res.json(schedules);
 };
 
-// Read single schedule
 export const getScheduleById = async (req: Request, res: Response) => {
   const { id } = req.params;
 
@@ -77,7 +74,29 @@ export const getScheduleById = async (req: Request, res: Response) => {
   res.json(schedule);
 };
 
-// Update schedule
+export const getScheduleByRoom = async (req: Request, res: Response) => {
+  const { roomName } = req.params;
+
+  const schedule = await Schedule.find({ room: roomName })
+    .populate("disciplineId")
+    .populate({
+      path: "groupId",
+      populate: {
+        path: "degreeId",
+        populate: {
+          path: "facultyId",
+        },
+      },
+    })
+    .populate("createdBy");
+
+  if (!schedule) {
+    return res.status(404).json({ error: "Not found" });
+  }
+
+  res.json(schedule);
+};
+
 export const updateSchedule = async (req: Request, res: Response) => {
   const updated = await Schedule.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
@@ -85,47 +104,56 @@ export const updateSchedule = async (req: Request, res: Response) => {
   res.json(updated);
 };
 
-// Delete schedule
 export const deleteSchedule = async (req: Request, res: Response) => {
   await Schedule.findByIdAndDelete(req.params.id);
   res.sendStatus(204);
 };
 
-// Aggregate Pipeline for Groups
 export const getScheduleForGroup = async (req: Request, res: Response) => {
   try {
-    const { groupId } = req.params; // Extract groupId from URL parameters
+    const { groupId } = req.params;
 
-    // Ensure the groupId is converted to an ObjectId (if it's not already)
     const groupObjectId = new mongoose.Types.ObjectId(groupId);
 
-    // Aggregation pipeline
+    // pipeline agregare
     const result = await Schedule.aggregate([
       {
         $match: {
-          groupId: groupObjectId, // Use the ObjectId for the groupId
+          groupId: groupObjectId,
         },
       },
       {
         $lookup: {
-          from: "disciplines", // Lookup disciplines from the disciplines collection
+          from: "disciplines",
           localField: "disciplineId",
           foreignField: "_id",
           as: "disciplineDetails",
         },
       },
       {
-        $unwind: "$disciplineDetails", // Unwind the disciplineDetails array
+        $lookup: {
+          from: "groups",
+          localField: "groupId",
+          foreignField: "_id",
+          as: "groupDetails",
+        },
+      },
+      {
+        $unwind: "$disciplineDetails",
+      },
+      {
+        $unwind: "$groupDetails",
       },
       {
         $project: {
-          _id: 0, // Exclude _id from the output
-          discipline: "$disciplineDetails.name", // Show discipline name
-          professor: "$disciplineDetails.professor", // Show professor name
-          room: 1, // Show room
-          dayOfWeek: 1, // Show day of week
-          startTime: 1, // Show start time
-          endTime: 1, // Show end time
+          _id: 1,
+          name: "$groupDetails.name",
+          discipline: "$disciplineDetails.name",
+          professor: "$disciplineDetails.professor",
+          room: 1,
+          dayOfWeek: 1,
+          startTime: 1,
+          endTime: 1,
         },
       },
     ]);

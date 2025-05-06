@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 import { Faculty } from "../models/faculty.model";
+import mongoose from "mongoose";
 
 export const createFaculty = async (req: Request, res: Response) => {
   try {
@@ -42,7 +43,6 @@ export const updateFaculty = async (req: Request, res: Response) => {
   }
 };
 
-// Delete a faculty
 export const deleteFaculty = async (req: Request, res: Response) => {
   try {
     const deleted = await Faculty.findByIdAndDelete(req.params.id);
