@@ -2,7 +2,7 @@ import { IUser } from "../types/user";
 // import { mockUser } from "../mocks/user";
 
 export const fetchCurrentUser = async (): Promise<IUser> => {
-  const res = await fetch("http://localhost:8080/users/me", {
+  const res = await fetch("http://localhost:8080/api/users/me", {
     credentials: "include",
   });
 
@@ -16,7 +16,7 @@ export const fetchCurrentUser = async (): Promise<IUser> => {
 
 export const logoutUser = async () => {
   try {
-    const res = await fetch("http://localhost:8080/users/logout", {
+    const res = await fetch("http://localhost:8080/api/users/logout", {
       method: "GET",
       credentials: "include",
     });

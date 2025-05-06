@@ -8,18 +8,21 @@ import { EventEditPopover } from "./EventEditPopoverComponent";
 export const ScheduleTable: React.FC = () => {
   const timeSlots = ["08-10", "10-12", "12-14", "14-16", "16-18", "18-20"];
   const [open, setOpen] = useState<boolean>(false);
-  const [scheduleEvents, setScheduleEvents] = useState<ClassesScheduleEvent[]>([]);
-  const [selectedEvent, setSelectedEvent] = useState<ClassesScheduleEvent | null>(null);
+  const [scheduleEvents, setScheduleEvents] = useState<ClassesScheduleEvent[]>(
+    []
+  );
+  const [selectedEvent, setSelectedEvent] =
+    useState<ClassesScheduleEvent | null>(null);
   const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
   const theme = useTheme();
 
   useEffect(() => {
     const fetchSchedule = async () => {
       try {
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, 1000));
         setScheduleEvents(mockScheduleEvents);
       } catch (error) {
-        console.error('Error fetching schedule:', error);
+        console.error("Error fetching schedule:", error);
       }
     };
 
@@ -28,11 +31,14 @@ export const ScheduleTable: React.FC = () => {
 
   const getEventForSlot = (timeSlot: string, dayIndex: number) => {
     return scheduleEvents.find(
-      event => event.timeSlot === timeSlot && event.dayOfWeek === dayIndex
+      (event) => event.timeSlot === timeSlot && event.dayOfWeek === dayIndex
     );
   };
 
-  const handleEventClick = (event: ClassesScheduleEvent, element: HTMLElement) => {
+  const handleEventClick = (
+    event: ClassesScheduleEvent,
+    element: HTMLElement
+  ) => {
     setSelectedEvent(event);
     setAnchorEl(element);
   };
@@ -43,27 +49,32 @@ export const ScheduleTable: React.FC = () => {
   };
 
   const handleSaveEvent = (updatedEvent: ClassesScheduleEvent) => {
-    setScheduleEvents(prevEvents =>
-      prevEvents.map(event =>
+    setScheduleEvents((prevEvents) =>
+      prevEvents.map((event) =>
         event.id === updatedEvent.id ? updatedEvent : event
       )
     );
   };
 
   const handleDeleteEvent = (eventId: string) => {
-    setScheduleEvents(prevEvents =>
-      prevEvents.filter(event => event.id !== eventId)
+    setScheduleEvents((prevEvents) =>
+      prevEvents.filter((event) => event.id !== eventId)
     );
   };
 
   // Funcție pentru a calcula culoarea de fundal mai deschisă
   const getLightColor = (color: string) => {
-    return color + '33';
+    return color + "33";
   };
 
   return (
-    <Box sx={{ p: 4, width: '100%', maxWidth: '1400px', margin: '0 auto' }}>
-      <Stack direction="row" justifyContent="space-between" alignItems="center" sx={{ mb: 4 }}>
+    <Box sx={{ p: 4, width: "100%", maxWidth: "1400px", margin: "0 auto" }}>
+      <Stack
+        direction="row"
+        justifyContent="space-between"
+        alignItems="center"
+        sx={{ mb: 4 }}
+      >
         <Typography variant="h4" sx={{ fontWeight: "bold" }}>
           Orarul meu
         </Typography>
@@ -72,10 +83,10 @@ export const ScheduleTable: React.FC = () => {
           onClick={() => setOpen(true)}
           sx={{
             backgroundColor: theme.palette.primary.main,
-            color: 'white',
-            '&:hover': {
+            color: "white",
+            "&:hover": {
               backgroundColor: theme.palette.primary.dark,
-            }
+            },
           }}
         >
           Adaugă Eveniment
@@ -92,7 +103,6 @@ export const ScheduleTable: React.FC = () => {
           width: "100%",
         }}
       >
-
         <Grid
           container
           item
@@ -116,7 +126,6 @@ export const ScheduleTable: React.FC = () => {
           ))}
         </Grid>
 
-
         {timeSlots.map((timeSlot, rowIndex) => (
           <Grid
             container
@@ -124,10 +133,13 @@ export const ScheduleTable: React.FC = () => {
             xs={12}
             key={timeSlot}
             sx={{
-              borderBottom: rowIndex < timeSlots.length - 1 ? `1px solid ${theme.palette.divider}` : "none",
-              '&:hover': {
+              borderBottom:
+                rowIndex < timeSlots.length - 1
+                  ? `1px solid ${theme.palette.divider}`
+                  : "none",
+              "&:hover": {
                 backgroundColor: theme.palette.grey[50],
-              }
+              },
             }}
           >
             <Grid
@@ -140,7 +152,7 @@ export const ScheduleTable: React.FC = () => {
               }}
             >
               <Typography variant="body2" color="textSecondary">
-                {timeSlot.replace('-', ':00 - ')}:00
+                {timeSlot.replace("-", ":00 - ")}:00
               </Typography>
             </Grid>
             {[...Array(5)].map((_, dayIndex) => {
@@ -152,47 +164,60 @@ export const ScheduleTable: React.FC = () => {
                     <Box
                       onClick={(e) => handleEventClick(event, e.currentTarget)}
                       sx={{
-                        backgroundColor: event.color ? getLightColor(event.color) : theme.palette.primary.light,
+                        backgroundColor: event.color
+                          ? getLightColor(event.color)
+                          : theme.palette.primary.light,
                         borderRadius: 1,
                         p: 1.5,
                         borderLeft: `4px solid ${event.color || theme.palette.primary.main}`,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease-in-out',
-                        '&:hover': {
-                          transform: 'translateY(-2px)',
-                          boxShadow: '0 4px 8px rgba(0,0,0,0.1)',
+                        cursor: "pointer",
+                        transition: "all 0.2s ease-in-out",
+                        "&:hover": {
+                          transform: "translateY(-2px)",
+                          boxShadow: "0 4px 8px rgba(0,0,0,0.1)",
                         },
                       }}
                     >
                       <Typography
                         variant="body2"
                         fontWeight="bold"
-                        sx={{ color: event.color || theme.palette.primary.main }}
+                        sx={{
+                          color: event.color || theme.palette.primary.main,
+                        }}
                       >
                         {event.title}
                       </Typography>
-                      <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                      <Typography
+                        variant="caption"
+                        display="block"
+                        sx={{ mt: 0.5 }}
+                      >
                         {event.location}
                       </Typography>
                       {event.professor && (
-                        <Typography variant="caption" display="block" sx={{ mt: 0.5 }}>
+                        <Typography
+                          variant="caption"
+                          display="block"
+                          sx={{ mt: 0.5 }}
+                        >
                           {event.professor}
                         </Typography>
                       )}
                       <Typography
                         variant="caption"
                         sx={{
-                          display: 'inline-block',
+                          display: "inline-block",
                           mt: 1,
-                          backgroundColor: event.color || theme.palette.primary.main,
-                          color: 'white',
+                          backgroundColor:
+                            event.color || theme.palette.primary.main,
+                          color: "white",
                           px: 1,
                           py: 0.25,
                           borderRadius: 1,
-                          textTransform: 'capitalize'
+                          textTransform: "capitalize",
                         }}
                       >
-                        {event.type || 'curs'}
+                        {event.type || "curs"}
                       </Typography>
                     </Box>
                   )}
