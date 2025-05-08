@@ -1,13 +1,31 @@
 import { Request, Response } from "express";
 import { Degree } from "../models/degree.model";
+import mongoose from "mongoose";
+import { Faculty } from "../models/faculty.model";
 
 export const createDegree = async (req: Request, res: Response) => {
   try {
-    const degree = new Degree(req.body);
-    await degree.save();
-    res.status(201).json(degree);
-  } catch (error) {
-    res.status(400).json({ error: error.message });
+    const { name, duration, facultyId } = req.body;
+
+    if (!mongoose.Types.ObjectId.isValid(facultyId)) {
+      return res.status(400).json({ error: "Invalid facultyId" });
+    }
+
+    const newDegree = new Degree({
+      name,
+      duration,
+      facultyId: new mongoose.Types.ObjectId(String(facultyId)),
+    });
+
+    const savedDegree = await newDegree.save();
+
+    await Faculty.findByIdAndUpdate(facultyId, {
+      $push: { degreeId: savedDegree._id },
+    });
+
+    res.status(201).json(savedDegree);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
 };
 

@@ -7,8 +7,8 @@ export interface IDiscipline extends Document {
 }
 
 const disciplineSchema = new Schema<IDiscipline>({
-  name: { type: String, required: true },
-  code: String,
+  name: { type: String, required: true, unique: true },
+  code: { type: String, required: true, unique: true },
   professor: String,
 });
 
